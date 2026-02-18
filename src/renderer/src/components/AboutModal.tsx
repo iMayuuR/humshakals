@@ -86,7 +86,7 @@ export const AboutModal = () => {
                         <h3 className="text-lg font-bold text-heading">Humshakals</h3>
                         <p className="text-xs text-muted mb-2">The Ultimate Responsive Design Browser</p>
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--bg-tertiary)] rounded-full text-xs font-mono text-secondary-themed border border-[var(--border-color)]">
-                            v1.0.0
+                            v3.0.2
                         </div>
                     </div>
 
@@ -142,7 +142,7 @@ export const AboutModal = () => {
 
                         <div className="flex justify-center pt-2">
                             <a
-                                href="https://github.com/YOUR_USERNAME/humshakals-pro"
+                                href="https://github.com/iMayuuR/humshakals"
                                 target="_blank"
                                 rel="noreferrer"
                                 className="text-xs text-muted hover:text-heading flex items-center gap-1 transition-colors"
