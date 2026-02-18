@@ -1,6 +1,6 @@
 {
   "name": "humshakals",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Humshakals: The Ultimate Responsive Design Browser. Test your website on 20+ devices simultaneously with synchronized scrolling, clicks, and touch emulation.",
   "main": "./out/main/index.js",
   "author": "Mayur Panchal",

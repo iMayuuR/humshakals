@@ -12,6 +12,8 @@ const api = {
     checkForUpdates: () =>
         ipcRenderer.invoke('check-for-updates'),
 
+    getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+
     versions: process.versions,
     platform: process.platform
 }

@@ -10,6 +10,7 @@ export const AboutModal = () => {
 
     const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'available' | 'no-update' | 'error'>('idle')
     const [statusMessage, setStatusMessage] = useState('')
+    const [appVersion, setAppVersion] = useState('')
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -17,8 +18,11 @@ export const AboutModal = () => {
                 dispatch(setShowAboutModal(false))
             }
         }
+
         if (isOpen) {
             document.addEventListener('keydown', handleKeyDown)
+            // Fetch app version
+            window.api?.getAppVersion().then(setAppVersion).catch(console.error)
         }
         return () => document.removeEventListener('keydown', handleKeyDown)
     }, [isOpen, dispatch])
@@ -86,7 +90,7 @@ export const AboutModal = () => {
                         <h3 className="text-lg font-bold text-heading">Humshakals</h3>
                         <p className="text-xs text-muted mb-2">The Ultimate Responsive Design Browser</p>
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[var(--bg-tertiary)] rounded-full text-xs font-mono text-secondary-themed border border-[var(--border-color)]">
-                            v3.0.2
+                            v{appVersion || '...'}
                         </div>
                     </div>
 
@@ -154,6 +158,6 @@ export const AboutModal = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
