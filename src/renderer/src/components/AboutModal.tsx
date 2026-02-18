@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { Icon } from '@iconify/react'
+import logo from '../assets/logo.png'
 import { selectShowAboutModal, setShowAboutModal } from '../store/slices/ui'
 
 export const AboutModal = () => {
@@ -84,8 +85,8 @@ export const AboutModal = () => {
                 {/* Content */}
                 <div className="p-6 space-y-6">
                     <div className="text-center">
-                        <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl mx-auto flex items-center justify-center shadow-lg mb-3">
-                            <Icon icon="mdi:responsive" width={32} className="text-white" />
+                        <div className="w-16 h-16 mx-auto mb-4">
+                            <img src={logo} alt="Humshakals Logo" className="w-full h-full object-contain drop-shadow-xl" />
                         </div>
                         <h3 className="text-lg font-bold text-heading">Humshakals</h3>
                         <p className="text-xs text-muted mb-2">The Ultimate Responsive Design Browser</p>
