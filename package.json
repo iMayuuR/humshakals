@@ -1,6 +1,6 @@
 {
   "name": "humshakals",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "description": "Humshakals: The Ultimate Responsive Design Browser. Test your website on 20+ devices simultaneously with synchronized scrolling, clicks, and touch emulation.",
   "main": "./out/main/index.js",
   "author": "Mayur Panchal",
@@ -15,6 +15,7 @@
   "homepage": "https://github.com/iMayuuR/humshakals#readme",
   "category": "public.app-category.developer-tools",
   "scripts": {
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config .eslintrc.cjs",
     "dev": "electron-vite dev",
     "build": "electron-vite build",
     "start": "electron-vite preview",
