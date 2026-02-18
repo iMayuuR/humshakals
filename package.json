@@ -1,18 +1,18 @@
 {
   "name": "humshakals",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Humshakals: The Ultimate Responsive Design Browser. Test your website on 20+ devices simultaneously with synchronized scrolling, clicks, and touch emulation.",
   "main": "./out/main/index.js",
   "author": "Mayur Panchal",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/humshakals-pro.git"
+    "url": "https://github.com/iMayuuR/humshakals.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/humshakals-pro/issues"
+    "url": "https://github.com/iMayuuR/humshakals/issues"
   },
-  "homepage": "https://github.com/YOUR_GITHUB_USERNAME/humshakals-pro#readme",
+  "homepage": "https://github.com/iMayuuR/humshakals#readme",
   "category": "public.app-category.developer-tools",
   "scripts": {
     "dev": "electron-vite dev",
@@ -70,8 +70,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "YOUR_GITHUB_USERNAME",
-        "repo": "humshakals-pro"
+        "owner": "iMayuuR",
+        "repo": "humshakals"
       }
     ],
     "win": {
