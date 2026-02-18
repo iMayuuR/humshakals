@@ -5,6 +5,7 @@ interface Window {
         enableTouchEmulation(webContentsId: number, width: number, height: number, isMobile: boolean): Promise<void>
         disableTouchEmulation(webContentsId: number): Promise<void>
         checkForUpdates(): Promise<any>
+        getAppVersion(): Promise<string>
         versions: NodeJS.ProcessVersions
         platform: NodeJS.Platform
     }

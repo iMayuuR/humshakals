@@ -15,6 +15,13 @@ app.commandLine.appendSwitch('disable-features', 'CrossOriginOpenerPolicy,SameSi
 function setupAutoUpdater(mainWindow: BrowserWindow): void {
     if (!is.dev) {
         autoUpdater.checkForUpdates()
+
+        // Check for updates every hour (60 * 60 * 1000 ms)
+        setInterval(() => {
+            autoUpdater.checkForUpdates().catch((err) => {
+                console.error('Error checking for updates:', err)
+            })
+        }, 60 * 60 * 1000)
     }
 
     autoUpdater.on('update-available', (_info: UpdateInfo) => {

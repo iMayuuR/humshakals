@@ -3,7 +3,7 @@ import { RootState } from '..'
 
 type ColorScheme = 'light' | 'dark' | 'system'
 
-interface UIState {
+export interface UIState {
     colorScheme: ColorScheme
     showDeviceManager: boolean
     showAboutModal: boolean

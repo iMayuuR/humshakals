@@ -8,7 +8,7 @@ export interface PreviewSuite {
     deviceIds: string[]
 }
 
-interface DevicesState {
+export interface DevicesState {
     allDevices: Device[]
     activeSuite: PreviewSuite
     previewSuites: PreviewSuite[]
