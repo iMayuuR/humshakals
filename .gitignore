@@ -1,0 +1,15 @@
+node_modules
+out
+release
+*.log
+.DS_Store
+dist
+dist-electron
+
+# Security & Local Config
+.env
+.env.*
+*.pem
+.vscode/
+coverage/
+.idea/
