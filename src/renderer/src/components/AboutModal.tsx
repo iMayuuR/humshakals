@@ -118,7 +118,7 @@ export const AboutModal = () => {
                     </div>
 
                     <div className="space-y-3">
-                        <button
+                        {/* <button
                             onClick={handleCheckForUpdates}
                             disabled={updateStatus === 'checking'}
                             className={`w-full py-2 px-4 rounded font-medium text-sm transition-colors flex items-center justify-center gap-2
@@ -137,7 +137,7 @@ export const AboutModal = () => {
                                     Check for Updates
                                 </>
                             )}
-                        </button>
+                        </button> */}
 
                         {statusMessage && (
                             <p className={`text-xs text-center ${updateStatus === 'error' ? 'text-red-400' : 'text-muted'}`}>
