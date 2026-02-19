@@ -126,7 +126,18 @@ ipcMain.handle('disable-touch-emulation', async (_event, webContentsId: number) 
 
 ipcMain.handle('check-for-updates', async () => {
     if (!is.dev) {
-        return autoUpdater.checkForUpdates()
+        try {
+            const result = await autoUpdater.checkForUpdates()
+            // Return only essential data, as the full result contains non-serializable objects (cancellationToken)
+            return result?.updateInfo || null
+        } catch (error) {
+            console.error('Error checking for updates:', error)
+            // Return null or throw a string error if preferred, but null handles "no update" gracefully? 
+            // Actually, if it errors, we might want the renderer to know. 
+            // But let's keep it simple: return null on error for now to avoid crashing, or let it throw.
+            // Better: throw so the UI shows error, but ensure it's a string.
+            throw error instanceof Error ? error.message : String(error)
+        }
     }
     return null
 })
