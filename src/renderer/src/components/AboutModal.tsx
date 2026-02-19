@@ -28,7 +28,7 @@ export const AboutModal = () => {
         return () => document.removeEventListener('keydown', handleKeyDown)
     }, [isOpen, dispatch])
 
-    const handleCheckForUpdates = async () => {
+    /* const handleCheckForUpdates = async () => {
         setUpdateStatus('checking')
         setStatusMessage('Checking for updates...')
         try {
@@ -47,7 +47,7 @@ export const AboutModal = () => {
             setUpdateStatus('error')
             setStatusMessage('Failed to check for updates.')
         }
-    }
+    } */
 
     if (!isOpen) return null
 
