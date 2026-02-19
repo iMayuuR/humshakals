@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-import { Icon } from '@iconify/react'
+// import { Icon } from '@iconify/react'
 import logo from '../assets/logo.png'
 import { selectShowAboutModal, setShowAboutModal } from '../store/slices/ui'
 
