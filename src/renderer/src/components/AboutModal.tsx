@@ -7,10 +7,10 @@ import { selectShowAboutModal, setShowAboutModal } from '../store/slices/ui'
 export const AboutModal = () => {
     const dispatch = useDispatch()
     const isOpen = useSelector(selectShowAboutModal)
-    const modalRef = useRef<HTMLDivElement>(null)
+    // const modalRef = useRef<HTMLDivElement>(null)
 
-    const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'available' | 'no-update' | 'error'>('idle')
-    const [statusMessage, setStatusMessage] = useState('')
+    // const [updateStatus, setUpdateStatus] = useState<'idle' | 'checking' | 'available' | 'no-update' | 'error'>('idle')
+    // const [statusMessage, setStatusMessage] = useState('')
     const [appVersion, setAppVersion] = useState('')
 
     useEffect(() => {
@@ -65,7 +65,8 @@ export const AboutModal = () => {
             onClick={handleBackdropClick}
         >
             <div
-                <div className="bg-[var(--bg-secondary)] w-full max-w-sm rounded-lg shadow-xl overflow-hidden border border-[var(--border-color)]">
+                className="bg-[var(--bg-secondary)] w-full max-w-sm rounded-lg shadow-xl overflow-hidden border border-[var(--border-color)]"
+            >
                 <div className="p-6 space-y-6">
                     <div className="text-center space-y-4">
                         <div className="flex justify-center">
