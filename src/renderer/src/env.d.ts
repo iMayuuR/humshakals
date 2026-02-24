@@ -4,8 +4,9 @@ interface Window {
     api: {
         enableTouchEmulation(webContentsId: number, width: number, height: number, isMobile: boolean): Promise<void>
         disableTouchEmulation(webContentsId: number): Promise<void>
-        checkForUpdates(): Promise<any>
         getAppVersion(): Promise<string>
+        onUpdateStatus(callback: (status: string) => void): () => void
+        onUpdateProgress(callback: (percent: number) => void): () => void
         versions: NodeJS.ProcessVersions
         platform: NodeJS.Platform
     }

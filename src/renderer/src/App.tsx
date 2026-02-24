@@ -4,6 +4,7 @@ import { ToolBar } from './components/ToolBar'
 import { Previewer } from './components/Previewer'
 import { DeviceManager } from './components/DeviceManager'
 import { AboutModal } from './components/AboutModal'
+import { UpdateNotification } from './components/UpdateNotification'
 import { setIsInspecting, selectIsInspecting } from './store/slices/renderer'
 import { selectColorScheme, toggleColorScheme } from './store/slices/ui'
 
@@ -101,6 +102,7 @@ function App() {
             {/* Device Manager Modal */}
             <DeviceManager />
             <AboutModal />
+            <UpdateNotification />
         </div>
     )
 }
