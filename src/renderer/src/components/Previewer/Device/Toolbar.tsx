@@ -12,7 +12,6 @@ interface DeviceToolbarProps {
     canRotate: boolean
     isRotated: boolean
     isScreenshotLoading: boolean
-    showTouchIcon: boolean
 }
 
 export const DeviceToolbar = ({
@@ -25,8 +24,7 @@ export const DeviceToolbar = ({
     isMirroringOff,
     canRotate,
     isRotated,
-    isScreenshotLoading,
-    showTouchIcon
+    isScreenshotLoading
 }: DeviceToolbarProps) => {
     return (
         <div className="flex items-center gap-0.5 mb-1 px-0.5">
@@ -81,17 +79,6 @@ export const DeviceToolbar = ({
             </Button>
 
             {/* Spacer */}
-            <div className="flex-1" />
-
-            {/* Touch Indicator */}
-            {showTouchIcon && (
-                <div
-                    className="p-1 text-primary-500 opacity-80"
-                    title="Touch emulation active"
-                >
-                    <Icon icon="mdi:gesture-tap" width={14} />
-                </div>
-            )}
         </div>
     )
 }

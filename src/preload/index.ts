@@ -5,7 +5,8 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
     enableTouchEmulation: (webContentsId: number, width: number, height: number, isMobile: boolean) =>
         ipcRenderer.invoke('enable-touch-emulation', webContentsId, width, height, isMobile),
-
+    toggleTouchCursor: (webContentsId: number, enabled: boolean) =>
+        ipcRenderer.invoke('toggle-touch-cursor', webContentsId, enabled),
     disableTouchEmulation: (webContentsId: number) =>
         ipcRenderer.invoke('disable-touch-emulation', webContentsId),
 

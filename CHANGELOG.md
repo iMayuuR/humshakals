@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2026-02-25
+
+### 🚀 Major Enhancements
+- **True Native DevTools Emulation**: Replaced the custom JavaScript-injected mobile touch and layout systems with the core Chromium `DevTools Protocol (CDP)`.
+- **Global Touch Toggle**: Added a explicit UI toggle on the toolbar that safely commands native mobile Touch and momentum-scroll to active devices via CDP bindings without bleeding into the app bounds.
+- **Cross-Origin Iframe Support**: The new native CDP touch perfectly scales and propagates pointer drags universally, meaning mobile nested scroll areas inside independent third-party IFrames now work flawlessly.
+
 ## [3.0.0] - 2026-02-12
 
 ### 🚀 Major Enhancements

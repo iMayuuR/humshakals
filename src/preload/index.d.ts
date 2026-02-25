@@ -1,16 +1,21 @@
+```typescript
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
     interface Window {
         electron: ElectronAPI
         api: {
+            saveConfig: (config: any) => Promise<boolean>
+            enableDeviceEmulation: (webContentsId: number, parameters: any) => Promise<boolean>
+            disableDeviceEmulation: (webContentsId: number) => Promise<boolean>
             enableTouchEmulation: (webContentsId: number, width: number, height: number, isMobile: boolean) => Promise<boolean>
+            toggleTouchCursor: (webContentsId: number, enabled: boolean) => Promise<boolean>
             disableTouchEmulation: (webContentsId: number) => Promise<boolean>
-            getAppVersion: () => Promise<string>
-            onUpdateStatus: (callback: (status: string) => void) => () => void
-            onUpdateProgress: (callback: (percent: number) => void) => () => void
+            setDeviceMetricsOverride: (webContentsId: number, parameters: any) => Promise<boolean>
+            getUserAgent: () => Promise<string>
             versions: NodeJS.ProcessVersions
             platform: NodeJS.Platform
         }
     }
 }
+```

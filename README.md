@@ -8,7 +8,7 @@
 ## 🚀 Key Features
 
 *   **📱 Multi-Device Mirroring:** Preview your site on flagship devices including iPhone 16 Pro Max, Samsung S25 Ultra, and iPad Pro with pixel-perfect accuracy.
-*   **👆 Advanced Touch Emulation:** accurate simulation of mobile interactions, including native-feel touch cursors, momentum scrolling, and gesture support.
+*   **👆 True Native DevTools Touch:** Uses pure Chrome DevTools Protocol (CDP) for flawless touch emulation. Features a seamless **Global UI Toggle** to command precise Mobile Drag-to-Scroll and momentum swiping natively, even across cross-origin IFrames.
 *   **🔄 Synchronized Testing:**
     *   **Click Sync:** Interaction events are propagated instantly to all devices.
     *   **Navigation Sync:** Unified browsing experience across the entire device suite.

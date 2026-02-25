@@ -102,25 +102,76 @@ function createWindow(): void {
     setupAutoUpdater(mainWindow)
 }
 
-// IPC handler for enabling touch emulation - now just a placeholder
-// We don't use enableDeviceEmulation anymore as it causes touch cursor on entire window
-// Touch cursor is handled purely via JS injection in the renderer
+// IPC handler for enabling device emulation via CDP
+// We send Emulation.setDeviceMetricsOverride specifically to ensure cross-origin iframes
+// see the emulated mobile bounds instead of the desktop screen bounds.
 ipcMain.handle('enable-touch-emulation', async (_event, webContentsId: number, _deviceWidth: number, _deviceHeight: number, _isMobile: boolean) => {
-    console.log(`[Touch] IPC received for webContents ${webContentsId} - no device emulation needed`)
-    return true
+    try {
+        const wc = webContents.fromId(webContentsId);
+        if (!wc) return false;
+
+        try {
+            if (!wc.debugger.isAttached()) {
+                wc.debugger.attach('1.3');
+            }
+        } catch (e) {
+            console.log('[Emulation] Debugger attach error:', e);
+        }
+
+        // 1. Force native bounds onto the rendering engine (fixes CORS iframe widths)
+        await wc.debugger.sendCommand('Emulation.setDeviceMetricsOverride', {
+            width: _deviceWidth,
+            height: _deviceHeight,
+            deviceScaleFactor: 0,
+            mobile: _isMobile,
+            fitWindow: false
+        })
+
+        console.log(`[Emulation] CDP metrics applied for webContents ${webContentsId} (${_deviceWidth}x${_deviceHeight})`);
+        return true;
+    } catch (error) {
+        console.error('[Emulation] Error:', error)
+        return false
+    }
 })
 
-// IPC handler for disabling device emulation
+// IPC handler for toggling the touch cursor (to prevent app-wide bleed)
+ipcMain.handle('toggle-touch-cursor', async (_event, webContentsId: number, enabled: boolean) => {
+    try {
+        const wc = webContents.fromId(webContentsId);
+        if (!wc) return false;
+
+        if (wc.debugger.isAttached()) {
+            await wc.debugger.sendCommand('Emulation.setEmitTouchEventsForMouse', {
+                enabled: enabled,
+                configuration: 'mobile'
+            });
+            await wc.debugger.sendCommand('Emulation.setTouchEmulationEnabled', {
+                enabled: enabled,
+                maxTouchPoints: enabled ? 5 : 1
+            });
+        }
+        return true;
+    } catch (error) {
+        return false;
+    }
+})
+
+// IPC handler for disabling device emulation completely
 ipcMain.handle('disable-touch-emulation', async (_event, webContentsId: number) => {
     try {
-        const wc = webContents.fromId(webContentsId)
-        if (!wc) return false
+        const wc = webContents.fromId(webContentsId);
+        if (!wc) return false;
 
-        wc.disableDeviceEmulation()
-        return true
+        if (wc.debugger.isAttached()) {
+            await wc.debugger.sendCommand('Emulation.setEmitTouchEventsForMouse', { enabled: false });
+            await wc.debugger.sendCommand('Emulation.setTouchEmulationEnabled', { enabled: false, maxTouchPoints: 1 });
+            wc.debugger.detach();
+        }
+        return true;
     } catch (error) {
-        console.error('[Disable Emulation] Error:', error)
-        return false
+        console.error('[Disable Emulation] Error:', error);
+        return false;
     }
 })
 

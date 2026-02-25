@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { Device } from '../../../data/deviceList'
-import { selectRotateDevices, selectZoomFactor, selectAddress } from '../../../store/slices/renderer'
+import { selectRotateDevices, selectZoomFactor, selectAddress, selectIsGlobalTouchEnabled } from '../../../store/slices/renderer'
 import { DeviceToolbar } from './Toolbar'
 import { Spinner } from '../../Button'
 import { Icon } from '@iconify/react'
@@ -28,7 +28,6 @@ export const DevicePreview = ({
     const [singleRotated, setSingleRotated] = useState(false)
     const [isMirroringOff, setIsMirroringOff] = useState(false)
     const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
-    const [touchEnabled, setTouchEnabled] = useState(false)
     const [hasInitialReload, setHasInitialReload] = useState(false)
 
     const address = useSelector(selectAddress)
@@ -83,7 +82,7 @@ export const DevicePreview = ({
 
             // Auto reload once on first load (Desktop only)
             if (address && !hasInitialReload && address !== 'about:blank' && device.type === 'desktop') {
-                console.log(`[AutoReload] Triggering one-time reload for ${device.name}`)
+                console.log(`[AutoReload] Triggering one - time reload for ${device.name}`)
                 setHasInitialReload(true)
                 // Small delay to ensure current load handles processing
                 setTimeout(() => {
@@ -93,288 +92,289 @@ export const DevicePreview = ({
 
             // Device-Aware Stealth Mode Injection
             const stealthScript = `
-                (function() {
-                    // SILENT MODE: No console logs to avoid detection
+    (function () {
+        // SILENT MODE: No console logs to avoid detection
 
-                    // 1. Remove navigator.webdriver (Common)
-                    try {
-                        const proto = Object.getPrototypeOf(navigator);
-                        if (proto && proto.webdriver) {
-                            delete proto.webdriver;
-                        } else {
-                            delete navigator.webdriver;
-                        }
-                    } catch (e) {}
+        // 1. Remove navigator.webdriver (Common)
+        try {
+            const proto = Object.getPrototypeOf(navigator);
+            if (proto && proto.webdriver) {
+                delete proto.webdriver;
+            } else {
+                delete navigator.webdriver;
+            }
+        } catch (e) { }
 
-                    const userAgent = navigator.userAgent;
-                    const isIOS = /iPhone|iPad|iPod/.test(userAgent);
-                    const isAndroid = /Android/.test(userAgent);
-                    const isMobile = isIOS || isAndroid;
+        const userAgent = navigator.userAgent;
+        const isIOS = /iPhone|iPad|iPod/.test(userAgent);
+        const isAndroid = /Android/.test(userAgent);
+        const isMobile = isIOS || isAndroid;
 
-                    // 2. Platform & Vendor Mocks
-                    if (isIOS) {
-                        Object.defineProperty(navigator, 'platform', { get: () => 'iPhone' });
-                        Object.defineProperty(navigator, 'vendor', { get: () => 'Apple Computer, Inc.' });
-                        Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 });
-                        
-                        // iOS Safari does NOT have window.chrome
-                        if ('chrome' in window) {
-                            delete window.chrome;
-                        }
+        // 2. Platform & Vendor Mocks
+        if (isIOS) {
+            Object.defineProperty(navigator, 'platform', { get: () => 'iPhone' });
+            Object.defineProperty(navigator, 'vendor', { get: () => 'Apple Computer, Inc.' });
+            Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 });
 
-                        // WebGL Fingerprint Spoofing (Apple GPU)
-                        const getParameter = WebGLRenderingContext.prototype.getParameter;
-                        WebGLRenderingContext.prototype.getParameter = function(parameter) {
-                            // UNMASKED_VENDOR_WEBGL
-                            if (parameter === 37445) return 'Apple Inc.'; 
-                            // UNMASKED_RENDERER_WEBGL
-                            if (parameter === 37446) return 'Apple GPU';
-                            return getParameter.apply(this, arguments);
-                        };
-                    } 
-                    else if (isAndroid) {
-                         Object.defineProperty(navigator, 'platform', { get: () => 'Linux armv81' });
-                         Object.defineProperty(navigator, 'vendor', { get: () => 'Google Inc.' });
-                         Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 });
-                         
-                         // Android Chrome HAS window.chrome
-                         if (!window.chrome) {
-                             window.chrome = { runtime: {} };
-                         }
+            // iOS Safari does NOT have window.chrome
+            if ('chrome' in window) {
+                delete window.chrome;
+            }
 
-                         // WebGL Fingerprint Spoofing (Adreno)
-                         const getParameter = WebGLRenderingContext.prototype.getParameter;
-                         WebGLRenderingContext.prototype.getParameter = function(parameter) {
-                             if (parameter === 37445) return 'Qualcomm'; 
-                             if (parameter === 37446) return 'Adreno (TM) 640';
-                             return getParameter.apply(this, arguments);
-                         };
-                    } 
-                    else {
-                        // Desktop Handling (Windows vs Mac)
-                        if (userAgent.includes('Mac')) {
-                            // Mac Mode (Safari/Chrome on Mac)
-                            Object.defineProperty(navigator, 'platform', { get: () => 'MacIntel' });
-                            Object.defineProperty(navigator, 'vendor', { get: () => 'Apple Computer, Inc.' });
-                            
-                            // Safari does not have window.chrome, but Chrome on Mac does.
-                            // However, our Mac User-Agents are mostly Safari.
-                            // If we use Chrome UA on Mac, we should keep window.chrome (but typically we use Safari strings for Mac)
-                            if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-                                if ('chrome' in window) {
-                                    delete window.chrome;
-                                }
-                            }
+            // WebGL Fingerprint Spoofing (Apple GPU)
+            const getParameter = WebGLRenderingContext.prototype.getParameter;
+            WebGLRenderingContext.prototype.getParameter = function (parameter) {
+                // UNMASKED_VENDOR_WEBGL
+                if (parameter === 37445) return 'Apple Inc.';
+                // UNMASKED_RENDERER_WEBGL
+                if (parameter === 37446) return 'Apple GPU';
+                return getParameter.apply(this, arguments);
+            };
+        }
+        else if (isAndroid) {
+            Object.defineProperty(navigator, 'platform', { get: () => 'Linux armv81' });
+            Object.defineProperty(navigator, 'vendor', { get: () => 'Google Inc.' });
+            Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 });
 
-                            // WebGL Fingerprint Spoofing (Apple M2)
-                            const getParameter = WebGLRenderingContext.prototype.getParameter;
-                            WebGLRenderingContext.prototype.getParameter = function(parameter) {
-                                // UNMASKED_VENDOR_WEBGL
-                                if (parameter === 37445) return 'Apple'; 
-                                // UNMASKED_RENDERER_WEBGL
-                                if (parameter === 37446) return 'Apple M2';
-                                return getParameter.apply(this, arguments);
-                            };
+            // Android Chrome HAS window.chrome
+            if (!window.chrome) {
+                window.chrome = { runtime: {} };
+            }
 
-                            // Hardware Concurrency (M1/M2 usually 8 cores)
-                            Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 });
-                            Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+            // WebGL Fingerprint Spoofing (Adreno)
+            const getParameter = WebGLRenderingContext.prototype.getParameter;
+            WebGLRenderingContext.prototype.getParameter = function (parameter) {
+                if (parameter === 37445) return 'Qualcomm';
+                if (parameter === 37446) return 'Adreno (TM) 640';
+                return getParameter.apply(this, arguments);
+            };
+        }
+        else {
+            // Desktop Handling (Windows vs Mac)
+            if (userAgent.includes('Mac')) {
+                // Mac Mode (Safari/Chrome on Mac)
+                Object.defineProperty(navigator, 'platform', { get: () => 'MacIntel' });
+                Object.defineProperty(navigator, 'vendor', { get: () => 'Apple Computer, Inc.' });
 
-                        } else {
-                            // Windows Mode (Default)
-                            Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
-                            Object.defineProperty(navigator, 'vendor', { get: () => 'Google Inc.' });
-                             
-                            if (!window.chrome) {
-                                window.chrome = { 
-                                    runtime: {},
-                                    app: {
-                                        isInstalled: false,
-                                        InstallState: { DISABLED: 'disabled', INSTALLED: 'installed', NOT_INSTALLED: 'not_installed' },
-                                        RunningState: { CANNOT_RUN: 'cannot_run', READY_TO_RUN: 'ready_to_run', RUNNING: 'running' }
-                                    }
-                                };
-                            }
-                        }
-
-                        // Mock Plugins for Desktop (Common)
-                        if (navigator.plugins.length === 0) {
-                            Object.defineProperty(navigator, 'plugins', {
-                                get: () => [1, 2, 3, 4, 5]
-                            });
-                        }
+                // Safari does not have window.chrome, but Chrome on Mac does.
+                // However, our Mac User-Agents are mostly Safari.
+                // If we use Chrome UA on Mac, we should keep window.chrome (but typically we use Safari strings for Mac)
+                if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+                    if ('chrome' in window) {
+                        delete window.chrome;
                     }
+                }
 
-                    // 3. Advanced Touch Mocking (Mobile Only)
-                    if (isMobile) {
-                        if (!('ontouchstart' in window)) {
-                            Object.defineProperty(window, 'ontouchstart', { value: null, writable: true });
+                // WebGL Fingerprint Spoofing (Apple M2)
+                const getParameter = WebGLRenderingContext.prototype.getParameter;
+                WebGLRenderingContext.prototype.getParameter = function (parameter) {
+                    // UNMASKED_VENDOR_WEBGL
+                    if (parameter === 37445) return 'Apple';
+                    // UNMASKED_RENDERER_WEBGL
+                    if (parameter === 37446) return 'Apple M2';
+                    return getParameter.apply(this, arguments);
+                };
+
+                // Hardware Concurrency (M1/M2 usually 8 cores)
+                Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 8 });
+                Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+
+            } else {
+                // Windows Mode (Default)
+                Object.defineProperty(navigator, 'platform', { get: () => 'Win32' });
+                Object.defineProperty(navigator, 'vendor', { get: () => 'Google Inc.' });
+
+                if (!window.chrome) {
+                    window.chrome = {
+                        runtime: {},
+                        app: {
+                            isInstalled: false,
+                            InstallState: { DISABLED: 'disabled', INSTALLED: 'installed', NOT_INSTALLED: 'not_installed' },
+                            RunningState: { CANNOT_RUN: 'cannot_run', READY_TO_RUN: 'ready_to_run', RUNNING: 'running' }
                         }
-                        // Inject Touch Constructors if missing (Crucial for modern detection)
-                        if (typeof window.Touch === 'undefined') {
-                            window.Touch = function Touch() {};
-                            window.TouchEvent = function TouchEvent() {};
-                            window.TouchList = function TouchList() {};
+                    };
+                }
+            }
+
+            // Mock Plugins for Desktop (Common)
+            if (navigator.plugins.length === 0) {
+                Object.defineProperty(navigator, 'plugins', {
+                    get: () => [1, 2, 3, 4, 5]
+                });
+            }
+        }
+
+        // 3. Advanced Touch Mocking (Mobile Only)
+        if (isMobile) {
+            if (!('ontouchstart' in window)) {
+                Object.defineProperty(window, 'ontouchstart', { value: null, writable: true });
+            }
+            // Inject Touch Constructors if missing (Crucial for modern detection)
+            if (typeof window.Touch === 'undefined') {
+                window.Touch = function Touch() { };
+                window.TouchEvent = function TouchEvent() { };
+                window.TouchList = function TouchList() { };
+            }
+        }
+
+        // 3b. Mock Languages (Common)
+        if (!navigator.languages || navigator.languages.length === 0) {
+            Object.defineProperty(navigator, 'languages', {
+                get: () => ['en-US', 'en']
+            });
+        }
+
+        // 4. Fingerprint Randomization (Canvas & ClientRects)
+        try {
+            // Generate a deterministic "noise" value based on device ID
+            // We use the device ID from the closure if available, or random if not
+            // Since we can't easily pass the ID into this string, we'll use a random seed per session
+            // This ensures "Session Isolation" implies "Fingerprint Isolation"
+            const noise = Math.random() * 0.0001;
+
+            // Canvas Noise
+            const toDataURL = HTMLCanvasElement.prototype.toDataURL;
+            HTMLCanvasElement.prototype.toDataURL = function (type) {
+                const context = this.getContext('2d');
+                if (context) {
+                    // Shift a single pixel very slightly to alter the hash
+                    const imageData = context.getImageData(0, 0, 1, 1);
+                    imageData.data[0] = Math.max(0, Math.min(255, imageData.data[0] + Math.floor(noise * 10)));
+                    context.putImageData(imageData, 0, 0);
+                }
+                return toDataURL.apply(this, arguments);
+            };
+
+            // DOM Rect Noise (Micro-precision shifts)
+            const getClientRects = Element.prototype.getClientRects;
+            Element.prototype.getClientRects = function () {
+                const rects = getClientRects.apply(this, arguments);
+                // We can't easily modify the DOMRectList directly as it's typically read-only or computed
+                // But for some bot scripts, they valid 'getBoundingClientRect'
+                return rects;
+            };
+
+            const getBoundingClientRect = Element.prototype.getBoundingClientRect;
+            Element.prototype.getBoundingClientRect = function () {
+                const rect = getBoundingClientRect.apply(this, arguments);
+                // Return a proxy to slightly offset the values
+                return new Proxy(rect, {
+                    get(target, prop) {
+                        const val = target[prop];
+                        if (typeof val === 'number') {
+                            return val + noise;
                         }
+                        return val;
                     }
+                });
+            };
+        } catch (e) { }
 
-                    // 3b. Mock Languages (Common)
-                    if (!navigator.languages || navigator.languages.length === 0) {
-                         Object.defineProperty(navigator, 'languages', {
-                            get: () => ['en-US', 'en']
-                        });
-                    }
+        // 5. Deep Stealth (PerimeterX / Unusual Activity Fixes)
+        try {
+            // a) Scrub Automation Attributes (cdc_, webdriver)
+            // These are left by ChromeDriver and are major flags
+            for (const prop in window) {
+                if (prop.startsWith('cdc_') || prop.match(/__webdriver/)) {
+                    delete window[prop];
+                }
+            }
 
-                    // 4. Fingerprint Randomization (Canvas & ClientRects)
-                    try {
-                        // Generate a deterministic "noise" value based on device ID
-                        // We use the device ID from the closure if available, or random if not
-                        // Since we can't easily pass the ID into this string, we'll use a random seed per session
-                        // This ensures "Session Isolation" implies "Fingerprint Isolation"
-                        const noise = Math.random() * 0.0001; 
+            // b) Mock Window Chrome (Outer Dimensions)
+            // Bots often have outerWidth == innerWidth. Real browsers have UI overhead.
+            const windowChrome = {
+                width: 16, // Vertical scrollbar approx
+                height: 80 // Address bar + tabs approx
+            };
+            Object.defineProperty(window, 'outerWidth', { get: () => window.innerWidth + windowChrome.width });
+            Object.defineProperty(window, 'outerHeight', { get: () => window.innerHeight + windowChrome.height });
 
-                        // Canvas Noise
-                        const toDataURL = HTMLCanvasElement.prototype.toDataURL;
-                        HTMLCanvasElement.prototype.toDataURL = function(type) {
-                            const context = this.getContext('2d');
-                            if (context) {
-                                // Shift a single pixel very slightly to alter the hash
-                                const imageData = context.getImageData(0, 0, 1, 1);
-                                imageData.data[0] = Math.max(0, Math.min(255, imageData.data[0] + Math.floor(noise * 10)));
-                                context.putImageData(imageData, 0, 0);
-                            }
-                            return toDataURL.apply(this, arguments);
-                        };
+            // c) Mock Network Information (4G Residential Profile)
+            // Data center IPs often lack this or show weird values
+            if (!navigator.connection) {
+                Object.defineProperty(navigator, 'connection', {
+                    get: () => ({
+                        effectiveType: '4g',
+                        rtt: 50,
+                        downlink: 10,
+                        saveData: false,
+                        addEventListener: () => { },
+                        removeEventListener: () => { }
+                    })
+                });
+            }
 
-                        // DOM Rect Noise (Micro-precision shifts)
-                        const getClientRects = Element.prototype.getClientRects;
-                        Element.prototype.getClientRects = function() {
-                            const rects = getClientRects.apply(this, arguments);
-                            // We can't easily modify the DOMRectList directly as it's typically read-only or computed
-                            // But for some bot scripts, they valid 'getBoundingClientRect'
-                            return rects; 
-                        };
-                        
-                        const getBoundingClientRect = Element.prototype.getBoundingClientRect;
-                         Element.prototype.getBoundingClientRect = function() {
-                            const rect = getBoundingClientRect.apply(this, arguments);
-                            // Return a proxy to slightly offset the values
-                            return new Proxy(rect, {
-                                get(target, prop) {
-                                    const val = target[prop];
-                                    if (typeof val === 'number') {
-                                        return val + noise;
-                                    }
-                                    return val;
-                                }
-                            });
-                        };
-                    } catch (e) {}
+            // d) Disable WebRTC (Prevent IP Leaks)
+            // This stops the browser from revealing the true Local IP via STUN
+            ['RTCPeerConnection', 'webkitRTCPeerConnection', 'mozRTCPeerConnection', 'RTCDataChannel'].forEach(api => {
+                if (window[api]) {
+                    delete window[api];
+                }
+            });
+            if (navigator.mediaDevices) {
+                navigator.mediaDevices.getUserMedia = null;
+            }
 
-                    // 5. Deep Stealth (PerimeterX / Unusual Activity Fixes)
-                    try {
-                        // a) Scrub Automation Attributes (cdc_, webdriver)
-                        // These are left by ChromeDriver and are major flags
-                        for (const prop in window) {
-                            if (prop.startsWith('cdc_') || prop.match(/__webdriver/)) {
-                                delete window[prop];
-                            }
-                        }
+            // e) Spoof Timezone & Locale (Target: America/Los_Angeles)
+            // Aligning Digital Persona with Network Fingerprint (US)
+            const targetTimezone = 'America/Los_Angeles';
 
-                        // b) Mock Window Chrome (Outer Dimensions)
-                        // Bots often have outerWidth == innerWidth. Real browsers have UI overhead.
-                        const windowChrome = {
-                            width: 16, // Vertical scrollbar approx
-                            height: 80 // Address bar + tabs approx
-                        };
-                        Object.defineProperty(window, 'outerWidth', { get: () => window.innerWidth + windowChrome.width });
-                        Object.defineProperty(window, 'outerHeight', { get: () => window.innerHeight + windowChrome.height });
+            try {
+                const OriginalDTF = Intl.DateTimeFormat;
+                Intl.DateTimeFormat = function (locales, options = {}) {
+                    options = options || {};
+                    options.timeZone = targetTimezone;
+                    return new OriginalDTF(locales, options);
+                };
+                Intl.DateTimeFormat.prototype = OriginalDTF.prototype;
 
-                        // c) Mock Network Information (4G Residential Profile)
-                        // Data center IPs often lack this or show weird values
-                        if (!navigator.connection) {
-                            Object.defineProperty(navigator, 'connection', {
-                                get: () => ({
-                                    effectiveType: '4g',
-                                    rtt: 50,
-                                    downlink: 10,
-                                    saveData: false,
-                                    addEventListener: () => {},
-                                    removeEventListener: () => {}
-                                })
-                            });
-                        }
+                // Override Date.prototype.getTimezoneOffset (UTC-8 = 480 min)
+                Date.prototype.getTimezoneOffset = () => 480;
+            } catch (e) { }
 
-                        // d) Disable WebRTC (Prevent IP Leaks)
-                        // This stops the browser from revealing the true Local IP via STUN
-                        ['RTCPeerConnection', 'webkitRTCPeerConnection', 'mozRTCPeerConnection', 'RTCDataChannel'].forEach(api => {
-                            if (window[api]) {
-                                delete window[api];
-                            }
-                        });
-                        if (navigator.mediaDevices) {
-                            navigator.mediaDevices.getUserMedia = null;
-                        }
+            // Spoof Locale to en-US
+            Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
+            Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
 
-                        // e) Spoof Timezone & Locale (Target: America/Los_Angeles)
-                        // Aligning Digital Persona with Network Fingerprint (US)
-                        const targetTimezone = 'America/Los_Angeles';
-                        
-                        try {
-                            const OriginalDTF = Intl.DateTimeFormat;
-                            Intl.DateTimeFormat = function(locales, options = {}) {
-                                options = options || {};
-                                options.timeZone = targetTimezone;
-                                return new OriginalDTF(locales, options);
-                            };
-                            Intl.DateTimeFormat.prototype = OriginalDTF.prototype;
-                            
-                            // Override Date.prototype.getTimezoneOffset (UTC-8 = 480 min)
-                            Date.prototype.getTimezoneOffset = () => 480; 
-                        } catch (e) {}
+        } catch (e) { }
 
-                        // Spoof Locale to en-US
-                        Object.defineProperty(navigator, 'language', { get: () => 'en-US' });
-                        Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-
-                    } catch(e) {}
-
-                    // 5. Hardware & Screen Mocking (Crucial for Mobile)
-                    try {
-                        const screenProps = {
-                            width: ${device.width},
-                            height: ${device.height},
-                            availWidth: ${device.width},
-                            availHeight: ${device.height},
-                            colorDepth: 24,
-                            pixelDepth: 24,
-                            orientation: {
-                                angle: 0,
-                                type: ${device.width > device.height ? "'landscape-primary'" : "'portrait-primary'"}
+        // 5. Hardware & Screen Mocking (Crucial for Mobile)
+        try {
+            const screenProps = {
+                width: ${device.width},
+                height: ${device.height},
+                availWidth: ${device.width},
+                availHeight: ${device.height},
+                colorDepth: 24,
+                pixelDepth: 24,
+                orientation: {
+                    angle: 0,
+                    type: ${device.width > device.height ? "'landscape-primary'" : "'portrait-primary'"
+                }
                             }
                         };
 
                         // Override window.screen properties
                         for (const [key, value] of Object.entries(screenProps)) {
-                            if (key === 'orientation') continue; // Handle separately
-                            Object.defineProperty(screen, key, { get: () => value });
-                        }
+        if (key === 'orientation') continue; // Handle separately
+        Object.defineProperty(screen, key, { get: () => value });
+    }
 
-                        // Override hardware concurrency (CPU cores)
-                        // Most mobile devices have 4-8 cores, but reporting 8 on a desktop is suspicious if it matches exactly
-                        // We'll standardise to 4 for mobile to be safe and consistent
-                        if (${device.type !== 'desktop'}) {
-                            Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
-                            Object.defineProperty(navigator, 'deviceMemory', { get: () => 4 });
-                        }
-                        
-                        
+// Override hardware concurrency (CPU cores)
+// Most mobile devices have 4-8 cores, but reporting 8 on a desktop is suspicious if it matches exactly
+// We'll standardise to 4 for mobile to be safe and consistent
+if (${device.type !== 'desktop'}) {
+    Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+    Object.defineProperty(navigator, 'deviceMemory', { get: () => 4 });
+}
+
+
                          // End of script
                     } catch (e) {
-                         console.error('[Stealth] Hardware mocking failed', e);
-                    }
-                })();
-            `
+    console.error('[Stealth] Hardware mocking failed', e);
+}
+                }) ();
+`
             webview.executeJavaScript(stealthScript).catch(e => console.error('Stealth injection failed', e))
         }
 
@@ -385,255 +385,84 @@ export const DevicePreview = ({
         }
     }, [address, hasInitialReload, index])
 
+    const isGlobalTouchEnabled = useSelector(selectIsGlobalTouchEnabled);
 
-    // Enable touch emulation for mobile devices
-    // Uses device emulation via IPC + JS injection for touch cursor
+    // 1. Core Layout Emulation
+    // Attaches the CDP Debugger and forces the cross-origin device metrics
+    // Does NOT depend on `isGlobalTouchEnabled` so toggling logic doesn't destroy the Debugger Socket!
     useEffect(() => {
         const webview = webviewRef.current
-        if (!webview || !isMobileDevice) return
+        if (!webview) return
 
         let webContentsId: number | null = null
 
-        // JS script for touch cursor and drag-to-scroll (Supports iframes)
-        const touchCursorScript = `
-            (function() {
-                // Core Touch Logic
-                function initTouch(win, doc) {
-                    if (win.__touchEmulationEnabled) return;
-                    win.__touchEmulationEnabled = true;
+        const enableDeviceLayout = async () => {
+            // Only apply mobile dimensions formatting via CDP if it is a mobile device
+            if (!isMobileDevice) return;
 
-                    // Add styles for touch cursor
-                    const style = doc.createElement('style');
-                    style.textContent = \`
-                        #__touch-cursor {
-                            position: fixed;
-                            width: 20px;
-                            height: 20px;
-                            border-radius: 50%;
-                            background: rgba(100, 100, 100, 0.4);
-                            border: 1px solid rgba(50, 50, 50, 0.6);
-                            pointer-events: none;
-                            z-index: 2147483647;
-                            transform: translate(-50%, -50%);
-                            transition: width 0.1s, height 0.1s, background 0.1s;
-                            display: none;
-                        }
-                        #__touch-cursor.visible { display: block; }
-                        #__touch-cursor.pressed {
-                            width: 16px;
-                            height: 16px;
-                            background: rgba(80, 80, 80, 0.6);
-                        }
-                    \`;
-                    doc.head.appendChild(style);
-
-                    // Create cursor element
-                    const cursor = doc.createElement('div');
-                    cursor.id = '__touch-cursor';
-                    doc.body.appendChild(cursor);
-
-                    // State
-                    let isDragging = false;
-                    let didScroll = false;
-                    let lastX = 0, lastY = 0;
-                    let scrollTarget = null;
-                    
-                    // Momentum variables
-                    let velocityX = 0, velocityY = 0;
-                    let lastTime = 0;
-                    let animationId = null;
-
-                    // Find scrollable parent (horizontal or vertical)
-                    function getScrollableParent(el) {
-                        while (el && el !== doc.body && el !== doc.documentElement) {
-                            const style = win.getComputedStyle(el);
-                            const overflowX = style.overflowX;
-                            const overflowY = style.overflowY;
-                            
-                            // Check for horizontal scroll
-                            if ((overflowX === 'auto' || overflowX === 'scroll') && el.scrollWidth > el.clientWidth) {
-                                return el;
-                            }
-                            // Check for vertical scroll
-                            if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
-                                return el;
-                            }
-                            el = el.parentElement;
-                        }
-                        return null;
-                    }
-
-                    // Momentum animation
-                    function animateMomentum() {
-                        if (Math.abs(velocityX) < 0.5 && Math.abs(velocityY) < 0.5) {
-                            animationId = null;
-                            return;
-                        }
-                        
-                        if (scrollTarget) {
-                            scrollTarget.scrollLeft += velocityX;
-                            scrollTarget.scrollTop += velocityY;
-                        } else {
-                            win.scrollBy(velocityX, velocityY);
-                        }
-                        
-                        // Deceleration
-                        velocityX *= 0.92;
-                        velocityY *= 0.92;
-                        
-                        animationId = win.requestAnimationFrame(animateMomentum);
-                    }
-
-                    // Update cursor position and handle drag scroll
-                    doc.addEventListener('mousemove', (e) => {
-                        cursor.style.left = e.clientX + 'px';
-                        cursor.style.top = e.clientY + 'px';
-                        
-                        if (isDragging) {
-                            const now = Date.now();
-                            const dt = now - lastTime || 16;
-                            
-                            const dx = lastX - e.clientX;
-                            const dy = lastY - e.clientY;
-                            
-                            if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
-                                didScroll = true;
-                                
-                                // Track velocity for momentum
-                                velocityX = dx * (16 / dt);
-                                velocityY = dy * (16 / dt);
-                                
-                                if (scrollTarget) {
-                                    scrollTarget.scrollLeft += dx;
-                                    scrollTarget.scrollTop += dy;
-                                } else {
-                                    win.scrollBy(dx, dy);
-                                }
-                            }
-                            
-                            lastX = e.clientX;
-                            lastY = e.clientY;
-                            lastTime = now;
-                        }
-                    }, true);
-
-                    // Mouse down - start drag, find scroll target
-                    doc.addEventListener('mousedown', (e) => {
-                        cursor.classList.add('pressed');
-                        
-                        // Cancel any ongoing momentum
-                        if (animationId) {
-                            win.cancelAnimationFrame(animationId);
-                            animationId = null;
-                        }
-                        velocityX = 0;
-                        velocityY = 0;
-                        
-                        const tag = e.target.tagName.toLowerCase();
-                        if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) {
-                            return;
-                        }
-                        
-                        isDragging = true;
-                        didScroll = false;
-                        lastX = e.clientX;
-                        lastY = e.clientY;
-                        lastTime = Date.now();
-                        
-                        scrollTarget = getScrollableParent(e.target);
-                    }, true);
-
-                    // Mouse up - start momentum
-                    doc.addEventListener('mouseup', () => {
-                        cursor.classList.remove('pressed');
-                        
-                        if (isDragging && didScroll && (Math.abs(velocityX) > 1 || Math.abs(velocityY) > 1)) {
-                            // Start momentum animation
-                            animateMomentum();
-                        }
-                        
-                        isDragging = false;
-                        didScroll = false;
-                    }, true);
-
-                    // Show/hide cursor
-                    doc.addEventListener('mouseenter', () => cursor.classList.add('visible'));
-                    doc.addEventListener('mouseleave', () => {
-                        cursor.classList.remove('visible', 'pressed');
-                        isDragging = false;
-                        scrollTarget = null;
-                    });
-
-                    // Prevent text selection during drag
-                    doc.addEventListener('selectstart', (e) => {
-                        if (isDragging) e.preventDefault();
-                    });
-
-                    console.log('[Touch] Cursor & scroll enabled for', win.location.href);
-                }
-
-                // Initialize on main window
-                initTouch(window, document);
-
-                // Helper to check and init iframes
-                function checkIframes() {
-                    const iframes = document.querySelectorAll('iframe');
-                    iframes.forEach(iframe => {
-                        try {
-                            // Only works for same-origin or if webSecurity is disabled
-                            const win = iframe.contentWindow;
-                            const doc = iframe.contentDocument || iframe.contentWindow.document;
-                            
-                            if (win && doc && !win.__touchEmulationEnabled) {
-                                initTouch(win, doc);
-                            }
-                        } catch (e) {
-                            // Cross-origin access restricted
-                        }
-                    });
-                }
-                
-                // Check periodically to catch dynamic updates
-                setInterval(checkIframes, 2000);
-                
-                // Observe DOM changes
-                const observer = new MutationObserver(checkIframes);
-                observer.observe(document.body, { childList: true, subtree: true });
-            })();
-        `;
-
-        const enableTouchEmulation = async () => {
             try {
-                // Get webContentsId
                 // @ts-ignore
                 webContentsId = webview.getWebContentsId?.()
 
-                // Enable device emulation via main process (if API available)
+                // Engage CDP Emulation natively via main process for layout boundaries
                 if (webContentsId && window.api?.enableTouchEmulation) {
                     await window.api.enableTouchEmulation(webContentsId, width, height, true)
                 }
-
-                // Inject touch cursor script
-                await webview.executeJavaScript(touchCursorScript)
-                setTouchEnabled(true)
-                console.log(`[Touch] Enabled for ${device.name} (${device.type})`)
             } catch (err) {
-                console.error('[Touch] Error:', err)
+                console.error('[Native CDP Layout] Error:', err)
             }
         }
 
-        // Enable on dom-ready and navigation
-        webview.addEventListener('dom-ready', enableTouchEmulation)
-        webview.addEventListener('did-navigate', enableTouchEmulation)
+        // Apply native layout metrics 
+        webview.addEventListener('dom-ready', enableDeviceLayout)
+        webview.addEventListener('did-navigate', enableDeviceLayout)
 
         return () => {
-            webview.removeEventListener('dom-ready', enableTouchEmulation)
-            webview.removeEventListener('did-navigate', enableTouchEmulation)
+            webview.removeEventListener('dom-ready', enableDeviceLayout)
+            webview.removeEventListener('did-navigate', enableDeviceLayout)
+
             if (webContentsId && window.api?.disableTouchEmulation) {
                 window.api.disableTouchEmulation(webContentsId)
             }
         }
     }, [isMobileDevice, device.name, device.type, width, height])
+
+    // 2. Dynamic Touch State Emulation
+    // Tracks Redux Toggle button and commands the existing Debugger to toggle Touch bounds
+    // Split into a separate useEffect so toggling it does NOT unmount/detach the layout debugger via cleanup!
+    useEffect(() => {
+        const webview = webviewRef.current
+        if (!webview) return
+
+        const syncTouchState = async () => {
+            let wcId: number | null = null;
+            try {
+                // @ts-ignore
+                wcId = webview?.getWebContentsId?.()
+            } catch (e) { }
+
+            if (!wcId || !isMobileDevice) return;
+            try {
+                // @ts-ignore
+                if (window.api?.toggleTouchCursor) {
+                    // @ts-ignore
+                    await window.api.toggleTouchCursor(wcId, isGlobalTouchEnabled as boolean);
+                }
+            } catch (e) { }
+        }
+
+        // Push state dynamically 
+        syncTouchState();
+
+        // Re-apply touch layer state on navigation reload
+        webview.addEventListener('dom-ready', syncTouchState)
+        webview.addEventListener('did-navigate', syncTouchState)
+
+        return () => {
+            webview.removeEventListener('dom-ready', syncTouchState)
+            webview.removeEventListener('did-navigate', syncTouchState)
+        }
+    }, [isGlobalTouchEnabled, isMobileDevice])
 
     // Fix Iframe Responsiveness
     // Inject script to force max-width 100% on iframes and ensure viewport meta
@@ -642,24 +471,42 @@ export const DevicePreview = ({
         if (!webview) return
 
         const iframeFixScript = `
-            (function() {
+    (function () {
+        function injectGlobalResponsiveCss() {
+            if (document.getElementById('humshakal-responsive-iframe-css')) return;
+            const style = document.createElement('style');
+            style.id = 'humshakal-responsive-iframe-css';
+            style.textContent = \`
+                        iframe {
+                            max-width: 100% !important;
+                            box-sizing: border-box !important;
+                        }
+                    \`;
+                    document.head.appendChild(style);
+                }
+
                 function fixIframes() {
+                    injectGlobalResponsiveCss();
+
                     const iframes = document.querySelectorAll('iframe');
                     iframes.forEach(iframe => {
-                        // Force responsive width
-                        if (!iframe.style.maxWidth) {
-                            iframe.style.maxWidth = '100%';
-                        }
-                        
+                        // Let Native Chrome render the iframe according to its mobile device dimensions.
+                        // We only remove hardcoded widths from very rigid wrappers.
+                        if (iframe.hasAttribute('width')) iframe.removeAttribute('width');
+                        iframe.style.maxWidth = '100%';
+
                         // Try to access contentWindow (only works if same-origin or webSecurity disabled)
                         try {
                             const doc = iframe.contentDocument || iframe.contentWindow.document;
-                            if (doc && !doc.querySelector('meta[name="viewport"]')) {
-                                const meta = doc.createElement('meta');
-                                meta.name = 'viewport';
-                                meta.content = 'width=device-width, initial-scale=1.0';
-                                doc.head.appendChild(meta);
-                                console.log('[Humshakals] Injected viewport meta into iframe');
+                            if (doc) {
+                                let meta = doc.querySelector('meta[name="viewport"]');
+                                if (!meta) {
+                                    meta = doc.createElement('meta');
+                                    meta.name = 'viewport';
+                                    meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0';
+                                    doc.head.appendChild(meta);
+                                    console.log('[Humshakals] Injected viewport meta into iframe inner doc');
+                                }
                             }
                         } catch (e) {
                             // Cross-origin access restricted
@@ -667,13 +514,15 @@ export const DevicePreview = ({
                     });
                 }
 
-                // Run on load and periodically to catch dynamic iframes
+                // Initial run
                 fixIframes();
-                setInterval(fixIframes, 2000);
+
+                // Recalculate on resize and orientation change
+                window.addEventListener('resize', fixIframes);
+                window.addEventListener('orientationchange', fixIframes);
                 
-                // Also observe DOM changes
-                const observer = new MutationObserver(fixIframes);
-                observer.observe(document.body, { childList: true, subtree: true });
+                // Periodically check for new dynamically added iframes
+                setInterval(fixIframes, 2000);
             })();
         `;
 
@@ -807,7 +656,6 @@ export const DevicePreview = ({
                 canRotate={device.isMobileCapable}
                 isRotated={singleRotated}
                 isScreenshotLoading={isScreenshotLoading}
-                showTouchIcon={isMobileDevice && touchEnabled}
             />
 
             {/* Viewport Container */}

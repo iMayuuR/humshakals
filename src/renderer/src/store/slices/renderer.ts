@@ -7,6 +7,7 @@ export interface RendererState {
     rotateDevices: boolean
     zoomFactor: number
     isCapturingScreenshot: boolean
+    isGlobalTouchEnabled: boolean
 }
 
 const initialState: RendererState = {
@@ -14,7 +15,8 @@ const initialState: RendererState = {
     isInspecting: false,
     rotateDevices: false,
     zoomFactor: 0.5,
-    isCapturingScreenshot: false
+    isCapturingScreenshot: false,
+    isGlobalTouchEnabled: false
 }
 
 const rendererSlice = createSlice({
@@ -35,6 +37,9 @@ const rendererSlice = createSlice({
         },
         setIsCapturingScreenshot: (state, action: PayloadAction<boolean>) => {
             state.isCapturingScreenshot = action.payload
+        },
+        setIsGlobalTouchEnabled: (state, action: PayloadAction<boolean>) => {
+            state.isGlobalTouchEnabled = action.payload
         }
     }
 })
@@ -44,7 +49,8 @@ export const {
     setIsInspecting,
     setRotateDevices,
     setZoomFactor,
-    setIsCapturingScreenshot
+    setIsCapturingScreenshot,
+    setIsGlobalTouchEnabled
 } = rendererSlice.actions
 
 export const selectAddress = (state: RootState) => state.renderer.address
@@ -52,5 +58,6 @@ export const selectIsInspecting = (state: RootState) => state.renderer.isInspect
 export const selectRotateDevices = (state: RootState) => state.renderer.rotateDevices
 export const selectZoomFactor = (state: RootState) => state.renderer.zoomFactor
 export const selectIsCapturingScreenshot = (state: RootState) => state.renderer.isCapturingScreenshot
+export const selectIsGlobalTouchEnabled = (state: RootState) => state.renderer.isGlobalTouchEnabled
 
 export default rendererSlice.reducer

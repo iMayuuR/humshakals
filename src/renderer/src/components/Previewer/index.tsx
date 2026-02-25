@@ -4,7 +4,9 @@ import { selectActiveDevices } from '../../store/slices/devices'
 import {
     selectZoomFactor,
     setZoomFactor,
-    setAddress
+    setAddress,
+    selectIsGlobalTouchEnabled,
+    setIsGlobalTouchEnabled
 } from '../../store/slices/renderer'
 import { DevicePreview } from './Device'
 import { Icon } from '@iconify/react'
@@ -13,6 +15,7 @@ export const Previewer = () => {
     const dispatch = useDispatch()
     const devices = useSelector(selectActiveDevices)
     const zoomFactor = useSelector(selectZoomFactor)
+    const isTouchEnabled = useSelector(selectIsGlobalTouchEnabled)
 
     const handleNavigate = useCallback((url: string) => {
         dispatch(setAddress(url))
@@ -49,26 +52,42 @@ export const Previewer = () => {
 
     return (
         <div className="h-full flex flex-col">
-            {/* Zoom Controls */}
-            <div className="zoom-bar flex items-center justify-end gap-2 px-4 py-2">
-                <span className="zoom-label text-xs mr-2">Zoom:</span>
+            {/* Toolbar Area */}
+            <div className="zoom-bar flex items-center justify-end gap-4 px-4 py-2 border-b border-white/[0.05]">
+                {/* Touch Toggle */}
                 <button
-                    onClick={handleZoomOut}
-                    className="zoom-btn p-1 rounded"
-                    title="Zoom Out"
+                    onClick={() => dispatch(setIsGlobalTouchEnabled(!isTouchEnabled))}
+                    className={`flex items-center gap-1.5 px-2 py-1 rounded transition-colors ${isTouchEnabled ? 'bg-primary/20 text-primary' : 'hover:bg-white/5 text-muted hover:text-white'
+                        }`}
+                    title="Toggle Native Touch Cursor"
                 >
-                    <Icon icon="ic:round-remove" width={18} />
+                    <Icon icon={isTouchEnabled ? 'mdi:gesture-tap' : 'mdi:cursor-default'} width={18} />
+                    <span className="text-xs font-medium">Touch</span>
                 </button>
-                <span className="zoom-value text-sm min-w-[50px] text-center">
-                    {Math.round(zoomFactor * 100)}%
-                </span>
-                <button
-                    onClick={handleZoomIn}
-                    className="zoom-btn p-1 rounded"
-                    title="Zoom In"
-                >
-                    <Icon icon="ic:round-add" width={18} />
-                </button>
+
+                <div className="w-[1px] h-4 bg-white/10 mx-1"></div>
+
+                {/* Zoom Controls */}
+                <div className="flex items-center gap-1">
+                    <span className="zoom-label text-xs mr-2 text-muted">Zoom:</span>
+                    <button
+                        onClick={handleZoomOut}
+                        className="zoom-btn p-1 rounded"
+                        title="Zoom Out"
+                    >
+                        <Icon icon="ic:round-remove" width={18} />
+                    </button>
+                    <span className="zoom-value text-sm min-w-[50px] text-center">
+                        {Math.round(zoomFactor * 100)}%
+                    </span>
+                    <button
+                        onClick={handleZoomIn}
+                        className="zoom-btn p-1 rounded"
+                        title="Zoom In"
+                    >
+                        <Icon icon="ic:round-add" width={18} />
+                    </button>
+                </div>
             </div>
 
             {/* Device Strip - Horizontal layout */}
@@ -85,6 +104,6 @@ export const Previewer = () => {
                     ))}
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
