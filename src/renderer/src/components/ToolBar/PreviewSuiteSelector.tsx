@@ -58,42 +58,52 @@ export const PreviewSuiteSelector = () => {
                                     setIsOpen(false)
                                 }}
                                 className={`w-full flex items-center justify-between px-2 py-1.5 rounded
-                  text-sm text-left transition-colors
-                  ${suite.id === activeSuite.id
+                                    text-sm text-left transition-colors
+                                    ${suite.id === activeSuite.id
                                         ? 'dropdown-item-active'
                                         : 'dropdown-item'}`}
                             >
-                                <span>{suite.name}</span>
-                                <span className="text-xs opacity-70">{suite.deviceIds.length} devices</span>
-                            </button>
-                        ))}
+                                <div className="flex items-center gap-2">
+                                    <span>{suite.name}</span>
+                                    {suite.id === activeSuite.id && (
+                                        <Icon icon="mdi:check" className="text-[var(--text-primary)]" width={14} />
+                                    )}
+                                </div>
+                                <span className="text-xs opacity-60">
+                                    {suite.deviceIds.length} devices
+                                </span>
+                            </button>))}
                     </div>
 
                     {/* Active devices section */}
                     <div className="p-2 dropdown-section">
-                        <span className="dropdown-label text-xs uppercase px-2">Active Devices</span>
-                        {activeDevices.map(device => device && (
-                            <div
-                                key={device.id}
-                                className="dropdown-item flex items-center justify-between px-2 py-1.5 text-sm"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <Icon
-                                        icon={device.type === 'phone' ? 'mdi:cellphone' :
-                                            device.type === 'tablet' ? 'mdi:tablet' : 'mdi:monitor'}
-                                        width={14}
-                                    />
-                                    <span>{device.name}</span>
-                                </div>
-                                <button
-                                    onClick={() => dispatch(toggleDeviceInSuite(device.id))}
-                                    className="dropdown-close-btn p-1 rounded"
-                                    title="Remove device"
+                        <span className="dropdown-label text-xs uppercase px-2 mb-2 block">Active Devices</span>
+                        <div className="flex flex-col gap-1 px-1">
+                            {activeDevices.map(device => device && (
+                                <div
+                                    key={device.id}
+                                    className="flex items-center justify-between px-2 py-1.5 text-sm rounded bg-[var(--bg-tertiary)] border border-[var(--accent)]/30 shadow-sm"
                                 >
-                                    <Icon icon="ic:round-close" width={14} />
-                                </button>
-                            </div>
-                        ))}
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.8)] animate-pulse" />
+                                        <Icon
+                                            icon={device.type === 'phone' ? 'mdi:cellphone' :
+                                                device.type === 'tablet' ? 'mdi:tablet' : 'mdi:monitor'}
+                                            width={14}
+                                            className="text-[var(--accent)]"
+                                        />
+                                        <span className="font-medium text-[var(--text-primary)]">{device.name}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => dispatch(toggleDeviceInSuite(device.id))}
+                                        className="p-1 rounded text-[var(--text-muted)] hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                                        title="Close device"
+                                    >
+                                        <Icon icon="ic:round-close" width={14} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* All Available Devices - grouped by type */}
@@ -109,7 +119,12 @@ export const PreviewSuiteSelector = () => {
                                 className={`w-full flex items-center justify-between px-2 py-1 text-sm rounded transition-colors
                                     ${activeSuite.deviceIds.includes(device.id) ? 'dropdown-item-active' : 'dropdown-item'}`}
                             >
-                                <span className="truncate">{device.name}</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="truncate">{device.name}</span>
+                                    {activeSuite.deviceIds.includes(device.id) && (
+                                        <Icon icon="mdi:check" className="text-white" width={14} />
+                                    )}
+                                </div>
                                 <span className="text-xs opacity-60">{device.width}×{device.height}</span>
                             </button>
                         ))}
@@ -123,7 +138,12 @@ export const PreviewSuiteSelector = () => {
                                 className={`w-full flex items-center justify-between px-2 py-1 text-sm rounded transition-colors
                                     ${activeSuite.deviceIds.includes(device.id) ? 'dropdown-item-active' : 'dropdown-item'}`}
                             >
-                                <span className="truncate">{device.name}</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="truncate">{device.name}</span>
+                                    {activeSuite.deviceIds.includes(device.id) && (
+                                        <Icon icon="mdi:check" className="text-white" width={14} />
+                                    )}
+                                </div>
                                 <span className="text-xs opacity-60">{device.width}×{device.height}</span>
                             </button>
                         ))}
@@ -137,7 +157,12 @@ export const PreviewSuiteSelector = () => {
                                 className={`w-full flex items-center justify-between px-2 py-1 text-sm rounded transition-colors
                                     ${activeSuite.deviceIds.includes(device.id) ? 'dropdown-item-active' : 'dropdown-item'}`}
                             >
-                                <span className="truncate">{device.name}</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="truncate">{device.name}</span>
+                                    {activeSuite.deviceIds.includes(device.id) && (
+                                        <Icon icon="mdi:check" className="text-white" width={14} />
+                                    )}
+                                </div>
                                 <span className="text-xs opacity-60">{device.width}×{device.height}</span>
                             </button>
                         ))}

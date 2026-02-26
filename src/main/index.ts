@@ -1,5 +1,6 @@
-import { app, shell, BrowserWindow, session, ipcMain, dialog, webContents } from 'electron'
+import { app, shell, BrowserWindow, session, ipcMain, dialog, webContents, WebContentsView } from 'electron'
 import { join } from 'path'
+import * as fs from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { autoUpdater, UpdateInfo, ProgressInfo } from 'electron-updater'
 
@@ -157,6 +158,48 @@ ipcMain.handle('toggle-touch-cursor', async (_event, webContentsId: number, enab
     }
 })
 
+// IPC handler for toggling docked/undocked DevTools on a specific webContents
+ipcMain.handle('open-devtools', async (_event, webContentsId: number, isDocked: boolean) => {
+    try {
+        const wc = webContents.fromId(webContentsId);
+        if (!wc) return false;
+
+        if (wc.isDevToolsOpened()) {
+            wc.closeDevTools();
+        }
+
+        wc.openDevTools({ mode: isDocked ? 'right' : 'detach' });
+        return true;
+    } catch (error) {
+        console.error('[DevTools] Error opening devtools:', error);
+        return false;
+    }
+})
+
+// IPC handler for saving screenshots
+ipcMain.handle('save-screenshot', async (_event, filename: string, dataUrl: string) => {
+    try {
+        const picturesPath = app.getPath('pictures')
+        const humshakalsPath = join(picturesPath, 'humshakals')
+
+        if (!fs.existsSync(humshakalsPath)) {
+            fs.mkdirSync(humshakalsPath, { recursive: true })
+        }
+
+        const filePath = join(humshakalsPath, filename)
+        // Extract base64 payload from "data:image/png;base64,....."
+        const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, "")
+        const buffer = Buffer.from(base64Data, 'base64')
+
+        await fs.promises.writeFile(filePath, buffer)
+        return filePath
+    } catch (error) {
+        console.error('[Screenshot] Error saving screenshot:', error)
+        throw error
+    }
+})
+
+
 // IPC handler for disabling device emulation completely
 ipcMain.handle('disable-touch-emulation', async (_event, webContentsId: number) => {
     try {
@@ -197,7 +240,13 @@ ipcMain.handle('get-app-version', () => {
     return app.getVersion()
 })
 
+ipcMain.handle('install-update', () => {
+    autoUpdater.quitAndInstall()
+})
 
+ipcMain.handle('open-external', (_event, url: string) => {
+    shell.openExternal(url)
+})
 
 app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.humshakals.pro')

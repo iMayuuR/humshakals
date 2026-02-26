@@ -5,6 +5,7 @@ import { selectRotateDevices, selectZoomFactor, selectAddress, selectIsGlobalTou
 import { DeviceToolbar } from './Toolbar'
 import { Spinner } from '../../Button'
 import { Icon } from '@iconify/react'
+import { getFormattedDate, getCleanDomain, cleanString, showToast } from '../../../utils/helpers'
 
 // Access preload API
 
@@ -596,10 +597,14 @@ if (${device.type !== 'desktop'}) {
             const image = await webview.capturePage()
             const dataUrl = image.toDataURL()
 
-            const link = document.createElement('a')
-            link.href = dataUrl
-            link.download = `${device.name.replace(/\s+/g, '_')}_viewport_${Date.now()}.png`
-            link.click()
+            const dateStr = getFormattedDate()
+            const domain = getCleanDomain(webview.getURL())
+            const dName = cleanString(device.name)
+
+            const filename = `${dName}-${domain}-${dateStr}.png`
+            await window.api.saveScreenshot(filename, dataUrl)
+
+            showToast(`Screenshot saved to Pictures/humshakals/${filename}`)
         } catch (e) {
             console.error('Screenshot failed:', e)
         }
@@ -613,7 +618,17 @@ if (${device.type !== 'desktop'}) {
     }, [isMirroringOff])
 
     const handleOpenDevtools = useCallback(() => {
-        webviewRef.current?.openDevTools()
+        // @ts-ignore
+        const wcId = webviewRef.current?.getWebContentsId?.()
+        if (!wcId) return;
+
+        // @ts-ignore
+        if (window.api?.openDevTools) {
+            // @ts-ignore
+            window.api.openDevTools(wcId, false)
+        } else {
+            webviewRef.current?.openDevTools()
+        }
     }, [])
 
     const handleRotate = useCallback(() => {
@@ -671,6 +686,8 @@ if (${device.type !== 'desktop'}) {
                 {/* Webview */}
                 <webview
                     ref={webviewRef}
+                    id={`webview-${device.id}`}
+                    data-device-name={device.name}
                     src="about:blank"
                     style={{
                         width: width,

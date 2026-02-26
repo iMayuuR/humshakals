@@ -9,6 +9,12 @@ const api = {
         ipcRenderer.invoke('toggle-touch-cursor', webContentsId, enabled),
     disableTouchEmulation: (webContentsId: number) =>
         ipcRenderer.invoke('disable-touch-emulation', webContentsId),
+    openDevTools: (webContentsId: number, isDocked: boolean) =>
+        ipcRenderer.invoke('open-devtools', webContentsId, isDocked),
+    saveScreenshot: (filename: string, dataUrl: string) =>
+        ipcRenderer.invoke('save-screenshot', filename, dataUrl),
+    installUpdate: () => ipcRenderer.invoke('install-update'),
+    openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
 
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 

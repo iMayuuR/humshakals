@@ -1,4 +1,3 @@
-```typescript
 import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
@@ -12,10 +11,13 @@ declare global {
             toggleTouchCursor: (webContentsId: number, enabled: boolean) => Promise<boolean>
             disableTouchEmulation: (webContentsId: number) => Promise<boolean>
             setDeviceMetricsOverride: (webContentsId: number, parameters: any) => Promise<boolean>
+            openDevTools: (webContentsId: number, isDocked: boolean) => Promise<boolean>
+            saveScreenshot: (filename: string, dataUrl: string) => Promise<string>
+            installUpdate: () => Promise<void>
+            openExternal: (url: string) => Promise<void>
             getUserAgent: () => Promise<string>
             versions: NodeJS.ProcessVersions
             platform: NodeJS.Platform
         }
     }
 }
-```

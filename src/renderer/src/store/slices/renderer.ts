@@ -16,7 +16,7 @@ const initialState: RendererState = {
     rotateDevices: false,
     zoomFactor: 0.5,
     isCapturingScreenshot: false,
-    isGlobalTouchEnabled: false
+    isGlobalTouchEnabled: false,
 }
 
 const rendererSlice = createSlice({
@@ -50,7 +50,7 @@ export const {
     setRotateDevices,
     setZoomFactor,
     setIsCapturingScreenshot,
-    setIsGlobalTouchEnabled
+    setIsGlobalTouchEnabled,
 } = rendererSlice.actions
 
 export const selectAddress = (state: RootState) => state.renderer.address
