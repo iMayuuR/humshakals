@@ -21,9 +21,7 @@
     </filter>
   </defs>
   
-  <!-- Background Circle (optional, remove for transparent) -->
-  <circle cx="256" cy="256" r="240" fill="#1e1e1e" />
-
+  <!-- Background Circle removed for true transparency -->
   <!-- Back Device (Phone) -->
   <g transform="translate(130, 80) rotate(-10)" filter="url(#shadow)">
     <rect x="0" y="0" width="160" height="320" rx="24" ry="24" fill="url(#grad1)" />
