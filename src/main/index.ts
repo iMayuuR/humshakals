@@ -3,6 +3,8 @@ import { join } from 'path'
 import * as fs from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { autoUpdater, UpdateInfo, ProgressInfo } from 'electron-updater'
+// @ts-ignore
+import icon from '../../resources/icon.png?asset'
 
 // Configure auto-updater
 autoUpdater.autoDownload = true
@@ -75,6 +77,7 @@ function createWindow(): void {
         autoHideMenuBar: true,
         title: 'Humshakals',
         backgroundColor: '#1e1e1e',
+        ...(process.platform === 'linux' ? { icon } : { icon }),
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
             sandbox: false,
