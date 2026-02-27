@@ -13,19 +13,33 @@ const api = {
         ipcRenderer.invoke('open-devtools', webContentsId, isDocked),
     saveScreenshot: (filename: string, dataUrl: string) =>
         ipcRenderer.invoke('save-screenshot', filename, dataUrl),
+    saveBugReport: (filename: string, content: string) =>
+        ipcRenderer.invoke('save-bug-report', filename, content),
     installUpdate: () => ipcRenderer.invoke('install-update'),
     openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
 
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 
-    // Auto-update event listeners
+    storeGet: (key: string) => ipcRenderer.invoke('store-get', key),
+    storeSet: (key: string, data: any) => ipcRenderer.invoke('store-set', key, data),
+
+    // Auto-update event listeners (SECURITY: use removeListener, not removeAllListeners)
     onUpdateStatus: (callback: (status: string) => void) => {
-        ipcRenderer.on('update-status', (_event, status) => callback(status))
-        return () => ipcRenderer.removeAllListeners('update-status')
+        const handler = (_event: any, status: string) => callback(status)
+        ipcRenderer.on('update-status', handler)
+        return () => ipcRenderer.removeListener('update-status', handler)
     },
     onUpdateProgress: (callback: (percent: number) => void) => {
-        ipcRenderer.on('update-progress', (_event, percent) => callback(percent))
-        return () => ipcRenderer.removeAllListeners('update-progress')
+        const handler = (_event: any, percent: number) => callback(percent)
+        ipcRenderer.on('update-progress', handler)
+        return () => ipcRenderer.removeListener('update-progress', handler)
+    },
+
+    // Network request monitoring (from main process webRequest API)
+    onNetworkRequest: (callback: (details: any) => void) => {
+        const handler = (_event: any, details: any) => callback(details)
+        ipcRenderer.on('network-request-completed', handler)
+        return () => ipcRenderer.removeListener('network-request-completed', handler)
     },
 
     versions: process.versions,

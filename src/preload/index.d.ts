@@ -13,6 +13,7 @@ declare global {
             setDeviceMetricsOverride: (webContentsId: number, parameters: any) => Promise<boolean>
             openDevTools: (webContentsId: number, isDocked: boolean) => Promise<boolean>
             saveScreenshot: (filename: string, dataUrl: string) => Promise<string>
+            saveBugReport: (filename: string, content: string) => Promise<string>
             installUpdate: () => Promise<void>
             openExternal: (url: string) => Promise<void>
             getUserAgent: () => Promise<string>

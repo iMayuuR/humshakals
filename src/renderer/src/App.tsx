@@ -1,30 +1,73 @@
-import { useEffect, useCallback, useState } from 'react'
+import { useEffect, useCallback, useState, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Icon } from '@iconify/react'
 import { ToolBar } from './components/ToolBar'
 import { Previewer } from './components/Previewer'
 import { DeviceManager } from './components/DeviceManager'
 import { AboutModal } from './components/AboutModal'
+import { GlobalDevToolsModal } from './components/GlobalDevToolsModal'
 import { UpdateNotification } from './components/UpdateNotification'
 import { setIsInspecting, selectIsInspecting } from './store/slices/renderer'
 import { selectColorScheme, toggleColorScheme } from './store/slices/ui'
+import { loadCustomDevicesAsync } from './store/slices/devices'
+import { loadDevToolsRulesAsync } from './store/slices/devtoolsPocket'
 import { getFormattedDate, getCleanDomain, cleanString } from './utils/helpers'
+
+interface ToastItem {
+    id: number
+    message: string
+    type: 'error' | 'log' | 'network' | 'success'
+    fading: boolean
+}
+
+const TOAST_COLORS: Record<string, { bg: string; border: string; icon: string }> = {
+    error: { bg: 'rgba(220, 38, 38, 0.92)', border: 'rgba(248, 113, 113, 0.6)', icon: 'ic:round-error-outline' },
+    log: { bg: 'rgba(202, 138, 4, 0.92)', border: 'rgba(250, 204, 21, 0.6)', icon: 'ic:round-article' },
+    network: { bg: 'rgba(37, 99, 235, 0.92)', border: 'rgba(96, 165, 250, 0.6)', icon: 'ic:round-wifi' },
+    success: { bg: 'rgba(22, 163, 74, 0.92)', border: 'rgba(74, 222, 128, 0.6)', icon: 'mdi:check-circle' },
+}
+
+const MAX_TOASTS = 5
 
 function App() {
     const dispatch = useDispatch()
     const isInspecting = useSelector(selectIsInspecting)
     const colorScheme = useSelector(selectColorScheme)
-    const [toastMsg, setToastMsg] = useState<string | null>(null)
+    const [toasts, setToasts] = useState<ToastItem[]>([])
+    const toastIdRef = useRef(0)
 
-    // Global Toast Listener
+    // Global Toast Listener — supports stacking
     useEffect(() => {
         const handleToast = (e: any) => {
-            setToastMsg(e.detail)
-            setTimeout(() => setToastMsg(null), 3500)
+            // Support both old (string) and new ({message, type}) format
+            const raw = e.detail
+            const message = typeof raw === 'string' ? raw : raw.message
+            const type = typeof raw === 'string' ? 'success' : (raw.type || 'success')
+
+            const id = ++toastIdRef.current
+            setToasts(prev => [...prev.slice(-(MAX_TOASTS - 1)), { id, message, type, fading: false }])
+
+            // Start fade-out after 2.5s
+            setTimeout(() => {
+                setToasts(prev => prev.map(t => t.id === id ? { ...t, fading: true } : t))
+            }, 2500)
+
+            // Remove after 3.5s
+            setTimeout(() => {
+                setToasts(prev => prev.filter(t => t.id !== id))
+            }, 3500)
         }
         window.addEventListener('app-toast', handleToast)
         return () => window.removeEventListener('app-toast', handleToast)
     }, [])
+
+    // Load custom devices and devtools rules from electron-store on boot
+    useEffect(() => {
+        // @ts-ignore
+        dispatch(loadCustomDevicesAsync())
+        // @ts-ignore
+        dispatch(loadDevToolsRulesAsync())
+    }, [dispatch])
 
     // Apply theme to document
     useEffect(() => {
@@ -122,18 +165,31 @@ function App() {
                 <Previewer />
             </main>
 
-            {/* Device Manager Modal */}
+            {/* Modals & Overlays */}
             <DeviceManager />
             <AboutModal />
+            <GlobalDevToolsModal />
             <UpdateNotification />
 
-            {/* Global Toast Notification Overlay */}
-            {toastMsg && (
-                <div className="fixed bottom-6 right-1/2 translate-x-1/2 z-[100] bg-green-600/90 backdrop-blur border border-green-500 text-white px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 animate-in slide-in-from-bottom-5 fade-in duration-300">
-                    <Icon icon="mdi:check-circle" width={20} className="text-white" />
-                    <span className="text-sm font-medium tracking-wide">{toastMsg}</span>
-                </div>
-            )}
+            {/* Global Stacking Toast Notifications */}
+            <div className="toast-container">
+                {toasts.map((toast) => {
+                    const colors = TOAST_COLORS[toast.type] || TOAST_COLORS.success
+                    return (
+                        <div
+                            key={toast.id}
+                            className={`toast-item ${toast.fading ? 'fading' : ''}`}
+                            style={{
+                                backgroundColor: colors.bg,
+                                borderColor: colors.border,
+                            }}
+                        >
+                            <Icon icon={colors.icon} width={18} />
+                            <span>{toast.message}</span>
+                        </div>
+                    )
+                })}
+            </div>
         </div>
     )
 }

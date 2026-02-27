@@ -8,6 +8,7 @@ export interface Device {
     type: 'phone' | 'tablet' | 'desktop'
     isTouchCapable: boolean
     isMobileCapable: boolean
+    customScale?: number
 }
 
 // Device profiles matching Responsively App

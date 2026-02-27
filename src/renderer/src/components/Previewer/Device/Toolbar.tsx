@@ -12,6 +12,9 @@ interface DeviceToolbarProps {
     canRotate: boolean
     isRotated: boolean
     isScreenshotLoading: boolean
+    isDevToolsOpen?: boolean
+    caughtBugCount: number
+    onOpenBugPopup: () => void
 }
 
 export const DeviceToolbar = ({
@@ -24,7 +27,10 @@ export const DeviceToolbar = ({
     isMirroringOff,
     canRotate,
     isRotated,
-    isScreenshotLoading
+    isScreenshotLoading,
+    isDevToolsOpen,
+    caughtBugCount,
+    onOpenBugPopup
 }: DeviceToolbarProps) => {
     return (
         <div className="flex items-center gap-0.5 mb-1 px-0.5">
@@ -57,8 +63,20 @@ export const DeviceToolbar = ({
             </Button>
 
             {/* DevTools */}
-            <Button onClick={onOpenDevtools} title="Open DevTools">
+            <Button onClick={onOpenDevtools} isActive={isDevToolsOpen} title="Open DevTools">
                 <Icon icon="ic:round-code" width={16} />
+            </Button>
+
+            {/* Bugs/Errors Caught Badge */}
+            <Button onClick={onOpenBugPopup} title={`DevTools Pocket: ${caughtBugCount} bugs caught`}>
+                <div className="relative">
+                    <Icon icon="ic:round-terminal" width={16} className={caughtBugCount > 0 ? "text-red-400" : ""} />
+                    {caughtBugCount > 0 && (
+                        <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 border border-red-800 text-[9px] font-bold text-white shadow-sm">
+                            {caughtBugCount > 99 ? '99+' : caughtBugCount}
+                        </span>
+                    )}
+                </div>
             </Button>
 
             {/* Rotate */}

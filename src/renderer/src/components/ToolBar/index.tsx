@@ -10,6 +10,7 @@ import {
     selectAddress
 } from '../../store/slices/renderer'
 import { toggleAboutModal } from '../../store/slices/ui'
+import { toggleGlobalModal } from '../../store/slices/devtoolsPocket'
 import { NavigationControls } from './NavigationControls'
 import { AddressBar } from './AddressBar'
 import { PreviewSuiteSelector } from './PreviewSuiteSelector'
@@ -64,6 +65,7 @@ export const ToolBar = ({
             <AddressBar
                 address={address}
                 onNavigate={handleNavigate}
+                onReload={onReloadAll}
             />
 
             {/* Right: Actions */}
@@ -93,6 +95,16 @@ export const ToolBar = ({
                     title="Screenshot All Devices"
                 >
                     <Icon icon="lucide:camera" width={18} />
+                </Button>
+
+                <Divider />
+
+                {/* DevTools Pocket Setting */}
+                <Button
+                    onClick={() => dispatch(toggleGlobalModal())}
+                    title="DevTools Pocket Settings"
+                >
+                    <Icon icon="ic:round-terminal" width={18} />
                 </Button>
 
                 <Divider />

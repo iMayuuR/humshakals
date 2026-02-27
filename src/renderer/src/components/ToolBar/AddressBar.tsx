@@ -4,10 +4,11 @@ import { Icon } from '@iconify/react'
 interface AddressBarProps {
     address: string
     onNavigate: (url: string) => void
+    onReload: () => void
     isLoading?: boolean
 }
 
-export const AddressBar = ({ address, onNavigate, isLoading = false }: AddressBarProps) => {
+export const AddressBar = ({ address, onNavigate, onReload, isLoading = false }: AddressBarProps) => {
     const [inputValue, setInputValue] = useState(address)
 
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -25,7 +26,11 @@ export const AddressBar = ({ address, onNavigate, isLoading = false }: AddressBa
             url = 'https://' + url
         }
 
-        onNavigate(url)
+        if (url === address) {
+            onReload()
+        } else {
+            onNavigate(url)
+        }
     }
 
     return (

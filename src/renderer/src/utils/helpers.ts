@@ -1,5 +1,5 @@
-export const showToast = (message: string) => {
-    window.dispatchEvent(new CustomEvent('app-toast', { detail: message }))
+export const showToast = (message: string, type?: 'error' | 'log' | 'network' | 'success') => {
+    window.dispatchEvent(new CustomEvent('app-toast', { detail: { message, type: type || 'success' } }))
 }
 
 export const getFormattedDate = () => {

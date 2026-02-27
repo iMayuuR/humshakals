@@ -6,11 +6,20 @@ import {
     selectActiveSuite,
     setActiveSuite,
     toggleDeviceInSuite,
-    selectAllDevices
+    selectAllDevices,
+    addCustomDevice,
+    removeCustomDevice
 } from '../../store/slices/devices'
+import { Device } from '../../data/deviceList'
 
 export const PreviewSuiteSelector = () => {
     const [isOpen, setIsOpen] = useState(false)
+    const [showCustomForm, setShowCustomForm] = useState(false)
+    const [customName, setCustomName] = useState('')
+    const [customW, setCustomW] = useState('')
+    const [customH, setCustomH] = useState('')
+    const [customScale, setCustomScale] = useState('')
+
     const dropdownRef = useRef<HTMLDivElement>(null)
     const dispatch = useDispatch()
 
@@ -22,6 +31,7 @@ export const PreviewSuiteSelector = () => {
         const handleClickOutside = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
                 setIsOpen(false)
+                setShowCustomForm(false)
             }
         }
         document.addEventListener('mousedown', handleClickOutside)
@@ -31,6 +41,30 @@ export const PreviewSuiteSelector = () => {
     const activeDevices = activeSuite.deviceIds
         .map(id => allDevices.find(d => d.id === id))
         .filter(Boolean)
+
+    const handleAddCustomDevice = () => {
+        if (!customName || !customW || !customH) return
+
+        const newDevice: Device = {
+            id: `custom_${Date.now()}`,
+            name: customName,
+            width: parseInt(customW) || 375,
+            height: parseInt(customH) || 667,
+            customScale: customScale ? parseInt(customScale) : undefined,
+            dpr: 2,
+            userAgent: 'Mozilla/5.0 (Linux; Android 10; Custom Device) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Mobile Safari/537.36',
+            type: 'phone',
+            isTouchCapable: true,
+            isMobileCapable: true
+        }
+
+        dispatch(addCustomDevice(newDevice))
+        setCustomName('')
+        setCustomW('')
+        setCustomH('')
+        setCustomScale('')
+        setShowCustomForm(false)
+    }
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -150,7 +184,7 @@ export const PreviewSuiteSelector = () => {
 
                         {/* Desktops */}
                         <div className="text-xs text-muted px-2 mt-2 mb-1">🖥️ Desktops</div>
-                        {allDevices.filter(d => d.type === 'desktop').map(device => (
+                        {allDevices.filter(d => d.type === 'desktop' && !d.id.startsWith('custom_')).map(device => (
                             <button
                                 key={device.id}
                                 onClick={() => dispatch(toggleDeviceInSuite(device.id))}
@@ -165,6 +199,95 @@ export const PreviewSuiteSelector = () => {
                                 </div>
                                 <span className="text-xs opacity-60">{device.width}×{device.height}</span>
                             </button>
+                        ))}
+
+                        {/* Custom Devices */}
+                        <div className="text-xs text-muted px-2 mt-4 mb-1 flex justify-between items-center border-t border-[var(--border-color)] pt-3">
+                            <span>🛠️ Custom Devices</span>
+                            <button
+                                onClick={() => setShowCustomForm(!showCustomForm)}
+                                className="text-[var(--accent)] hover:underline flex items-center gap-1"
+                            >
+                                <Icon icon="mdi:plus" /> Add New
+                            </button>
+                        </div>
+
+                        {showCustomForm && (
+                            <div className="mx-2 my-2 p-3 bg-[var(--bg-tertiary)] rounded border border-[var(--border-color)] shadow-inner">
+                                <input
+                                    placeholder="Device Name"
+                                    className="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded px-2 py-1 text-sm text-[var(--text-primary)] mb-2 focus:outline-none focus:border-[var(--accent)]"
+                                    value={customName}
+                                    onChange={(e) => setCustomName(e.target.value)}
+                                    autoFocus
+                                />
+                                <div className="flex gap-2 mb-3">
+                                    <input
+                                        placeholder="W (px)"
+                                        type="text"
+                                        className="w-1/3 min-w-0 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded px-2 py-1 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                                        value={customW}
+                                        onChange={(e) => setCustomW(e.target.value.replace(/[^0-9]/g, ''))}
+                                    />
+                                    <input
+                                        placeholder="H (px)"
+                                        type="text"
+                                        className="w-1/3 min-w-0 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded px-2 py-1 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                                        value={customH}
+                                        onChange={(e) => setCustomH(e.target.value.replace(/[^0-9]/g, ''))}
+                                    />
+                                    <input
+                                        placeholder="Scale"
+                                        type="text"
+                                        className="w-1/3 min-w-0 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded px-2 py-1 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent)]"
+                                        value={customScale}
+                                        onChange={(e) => setCustomScale(e.target.value.replace(/[^0-9]/g, ''))}
+                                        title="Optional: Leave blank for auto scaling"
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        onClick={() => setShowCustomForm(false)}
+                                        className="px-3 py-1 text-sm rounded text-[var(--text-muted)] hover:bg-[var(--bg-secondary)] transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleAddCustomDevice}
+                                        disabled={!customName || !customW || !customH}
+                                        className="px-3 py-1 text-sm rounded bg-[var(--accent)] text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--accent-hover)] transition-colors"
+                                    >
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {allDevices.filter(d => d.id.startsWith('custom_')).map(device => (
+                            <div key={device.id} className={`w-full flex items-center justify-between px-2 py-1 text-sm rounded transition-colors group ${activeSuite.deviceIds.includes(device.id) ? 'dropdown-item-active' : 'dropdown-item'}`}>
+                                <button
+                                    onClick={() => dispatch(toggleDeviceInSuite(device.id))}
+                                    className="flex-1 flex items-center justify-between text-left"
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span className="truncate">{device.name}</span>
+                                        {activeSuite.deviceIds.includes(device.id) && (
+                                            <Icon icon="mdi:check" className="text-white" width={14} />
+                                        )}
+                                    </div>
+                                    <span className="text-xs opacity-60 mr-2">{device.width}×{device.height}{device.customScale ? ` (${device.customScale}%)` : ''}</span>
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        dispatch(removeCustomDevice(device.id));
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 p-1 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded transition-all"
+                                    title="Delete custom device"
+                                >
+                                    <Icon icon="mdi:trash-can-outline" width={14} />
+                                </button>
+                            </div>
                         ))}
                     </div>
                 </div>

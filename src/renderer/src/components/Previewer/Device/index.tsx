@@ -1,8 +1,10 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { Device } from '../../../data/deviceList'
 import { selectRotateDevices, selectZoomFactor, selectAddress, selectIsGlobalTouchEnabled } from '../../../store/slices/renderer'
+import { selectDevToolsRules, addCaughtEvent, selectDeviceCaughtEvents } from '../../../store/slices/devtoolsPocket'
 import { DeviceToolbar } from './Toolbar'
+import { BugPopup } from './BugPopup'
 import { Spinner } from '../../Button'
 import { Icon } from '@iconify/react'
 import { getFormattedDate, getCleanDomain, cleanString, showToast } from '../../../utils/helpers'
@@ -22,6 +24,7 @@ export const DevicePreview = ({
     index,
     onNavigate
 }: DevicePreviewProps) => {
+    const dispatch = useDispatch()
     const webviewRef = useRef<Electron.WebviewTag>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [hasError, setHasError] = useState(false)
@@ -30,10 +33,21 @@ export const DevicePreview = ({
     const [isMirroringOff, setIsMirroringOff] = useState(false)
     const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
     const [hasInitialReload, setHasInitialReload] = useState(false)
+    const [isDevToolsOpen, setIsDevToolsOpen] = useState(false)
+    const [isBugPopupOpen, setIsBugPopupOpen] = useState(false)
 
     const address = useSelector(selectAddress)
     const globalRotate = useSelector(selectRotateDevices)
-    const zoomFactor = useSelector(selectZoomFactor)
+    const globalZoomFactor = useSelector(selectZoomFactor)
+    const devToolsRules = useSelector(selectDevToolsRules)
+    const caughtEvents = useSelector(selectDeviceCaughtEvents(device.id))
+    const caughtBugCount = caughtEvents.length
+
+    // Keep rules in a ref so event listeners always see the latest value
+    const rulesRef = useRef(devToolsRules)
+    useEffect(() => { rulesRef.current = devToolsRules }, [devToolsRules])
+
+    const zoomFactor = globalZoomFactor
 
     // Check if device is mobile (phone or tablet)
     const isMobileDevice = device.type === 'phone' || device.type === 'tablet'
@@ -42,8 +56,11 @@ export const DevicePreview = ({
     const isRotated = device.isMobileCapable && (globalRotate || singleRotated)
 
     // Calculate dimensions
-    let width = device.width
-    let height = device.height
+    // Custom devices mimic OS-level scaling (e.g. 125% means the CSS viewport is divided by 1.25)
+    const scaleDivisor = device.customScale ? (device.customScale / 100) : 1;
+    let width = Math.round(device.width / scaleDivisor)
+    let height = Math.round(device.height / scaleDivisor)
+
     if (isRotated) {
         const temp = width
         width = height
@@ -57,7 +74,7 @@ export const DevicePreview = ({
     // Load URL when address changes OR when webview is ready with existing address
     useEffect(() => {
         const webview = webviewRef.current
-        if (!webview) return () => { }
+        if (!webview) return
 
         // Staggered Loading: Delay based on index (Traffic Shaping)
         // Increased to 1.5s per device to avoid "Rapid Request" bot detection
@@ -480,6 +497,7 @@ if (${device.type !== 'desktop'}) {
             style.textContent = \`
                         iframe {
                             max-width: 100% !important;
+                            min-width: 0 !important;
                             box-sizing: border-box !important;
                         }
                     \`;
@@ -492,8 +510,8 @@ if (${device.type !== 'desktop'}) {
                     const iframes = document.querySelectorAll('iframe');
                     iframes.forEach(iframe => {
                         // Let Native Chrome render the iframe according to its mobile device dimensions.
-                        // We only remove hardcoded widths from very rigid wrappers.
-                        if (iframe.hasAttribute('width')) iframe.removeAttribute('width');
+                        // We NO LONGER remove the width attribute because deleting width="100%" causes the iframe to collapse to 300px default width.
+                        // 'max-width: 100% !important' injected via CSS is sufficient to prevent horizontal overflow without destroying intended percentages.
                         iframe.style.maxWidth = '100%';
 
                         // Try to access contentWindow (only works if same-origin or webSecurity disabled)
@@ -570,16 +588,128 @@ if (${device.type !== 'desktop'}) {
             setIsLoading(false)
         }
 
+        const onDevToolsOpened = () => setIsDevToolsOpen(true)
+        const onDevToolsClosed = () => setIsDevToolsOpen(false)
+
+        const onConsoleMessage = (e: Electron.ConsoleMessageEvent) => {
+            // Skip framework/browser/3rd-party noise — check BOTH message AND source URL
+            const msg = e.message.toLowerCase()
+            const src = (e.sourceId || '').toLowerCase()
+            const NOISE_PATTERNS = [
+                'electron security warning', 'electron deprecation warning',
+                '[deprecation]', '[intervention]',
+                'powered by amp', 'ampproject.org', '[amp]',
+                'googletagmanager.com', 'google-analytics.com',
+                'googlesyndication.com', 'doubleclick.net', 'securepubads',
+                'adsbygoogle', 'pagead', 'pubads',
+                'fbevents.js', 'connect.facebook',
+                'gpt/m20'
+            ]
+            const isNoise = NOISE_PATTERNS.some(p => msg.includes(p) || src.includes(p)) ||
+                (msg.includes('%c') && msg.includes('font-weight'))
+            if (isNoise) return
+
+            // Error Level (2)
+            if (e.level === 2) {
+                const rules = rulesRef.current
+                const filterField = rules.consoleFilterText.trim().toLowerCase()
+                // Match filter against the SOURCE URL/domain, supports comma-separated entries
+                const source = (e.sourceId || '').toLowerCase()
+                const filters = filterField ? filterField.split(',').map(s => s.trim()).filter(Boolean) : []
+                const isMatch = filters.length === 0 || filters.some(f => source.includes(f))
+                if (isMatch) {
+                    dispatch(addCaughtEvent({
+                        deviceKey: device.id,
+                        event: {
+                            type: 'console-error',
+                            message: e.message,
+                            source: e.sourceId,
+                            line: e.line
+                        }
+                    }))
+                    showToast(`Bug caught on ${device.name}!`, 'error')
+                }
+            }
+
+            // Log/Info/Warning Levels (0, 1) — exact match with comma-separated values
+            if (e.level < 2) {
+                const rules = rulesRef.current
+                const logMatchField = rules.consoleLogMatch.trim()
+                if (!logMatchField) return // nothing to match
+
+                // Split comma-separated entries, trim each one
+                const matchers = logMatchField.split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+                const trimmedMsg = e.message.trim().toLowerCase()
+
+                // If ANY matcher is a number, enable auto-detection of ALL numeric console.logs
+                const hasNumericMatcher = matchers.some(m => /^\d+$/.test(m))
+                const isMsgNumeric = /^\d+(\.\d+)?$/.test(trimmedMsg)
+                const isNumericMatch = hasNumericMatcher && isMsgNumeric
+
+                // Non-numeric entries use exact match
+                const nonNumericMatchers = matchers.filter(m => !/^\d+$/.test(m))
+                const isExactMatch = nonNumericMatchers.some(m => trimmedMsg === m)
+
+                if (isNumericMatch || isExactMatch) {
+                    dispatch(addCaughtEvent({
+                        deviceKey: device.id,
+                        event: {
+                            type: 'console-log',
+                            message: e.message,
+                            source: e.sourceId,
+                            line: e.line
+                        }
+                    }))
+                    showToast(`Log matched on ${device.name}!`, 'log')
+                }
+            }
+        }
+
         webview.addEventListener('did-start-loading', onStartLoading)
         webview.addEventListener('did-stop-loading', onStopLoading)
         webview.addEventListener('did-navigate', onDidNavigate)
         webview.addEventListener('did-fail-load', onFailLoad)
+        webview.addEventListener('devtools-opened', onDevToolsOpened)
+        webview.addEventListener('devtools-closed', onDevToolsClosed)
+        webview.addEventListener('console-message', onConsoleMessage)
+
+        // Network request monitoring via IPC from main process
+        const cleanupNetwork = window.api.onNetworkRequest((details: any) => {
+            // Only process if this webview's webContentsId matches
+            const wvWebContentsId = (webview as any).getWebContentsId?.()
+            if (wvWebContentsId && details.webContentsId !== wvWebContentsId) return
+
+            const currentRules = rulesRef.current
+            const netField = currentRules.networkMatch.trim().toLowerCase()
+            if (currentRules.isNetworkEnabled && netField) {
+                // Support comma-separated entries: 'coldplay.js, vs.js' matches either
+                const netMatchers = netField.split(',').map(s => s.trim()).filter(Boolean)
+                // Match only against URL path (ignore query string params to avoid false positives)
+                const fullUrl = (details.url || '').toLowerCase()
+                const urlPath = fullUrl.split('?')[0]
+                if (netMatchers.some(m => urlPath.includes(m))) {
+                    dispatch(addCaughtEvent({
+                        deviceKey: device.id,
+                        event: {
+                            type: 'network',
+                            message: `[${details.statusCode}] ${details.method} ${details.resourceType}`,
+                            url: details.url
+                        }
+                    }))
+                    showToast(`Network matched on ${device.name}!`, 'network')
+                }
+            }
+        })
 
         return () => {
             webview.removeEventListener('did-start-loading', onStartLoading)
             webview.removeEventListener('did-stop-loading', onStopLoading)
             webview.removeEventListener('did-navigate', onDidNavigate)
             webview.removeEventListener('did-fail-load', onFailLoad)
+            webview.removeEventListener('devtools-opened', onDevToolsOpened)
+            webview.removeEventListener('devtools-closed', onDevToolsClosed)
+            webview.removeEventListener('console-message', onConsoleMessage)
+            cleanupNetwork()
         }
     }, [isPrimary, onNavigate])
 
@@ -625,11 +755,11 @@ if (${device.type !== 'desktop'}) {
         // @ts-ignore
         if (window.api?.openDevTools) {
             // @ts-ignore
-            window.api.openDevTools(wcId, false)
+            window.api.openDevTools(wcId, false, device.name)
         } else {
             webviewRef.current?.openDevTools()
         }
-    }, [])
+    }, [device.name])
 
     const handleRotate = useCallback(() => {
         setSingleRotated(!singleRotated)
@@ -640,7 +770,11 @@ if (${device.type !== 'desktop'}) {
     }, [])
 
     return (
-        <div className="device-card flex-shrink-0">
+        <div className="device-card flex-shrink-0 relative">
+            {isBugPopupOpen && (
+                <BugPopup device={device} onClose={() => setIsBugPopupOpen(false)} />
+            )}
+
             {/* Device Header */}
             <div className="device-header flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -671,6 +805,9 @@ if (${device.type !== 'desktop'}) {
                 canRotate={device.isMobileCapable}
                 isRotated={singleRotated}
                 isScreenshotLoading={isScreenshotLoading}
+                isDevToolsOpen={isDevToolsOpen}
+                caughtBugCount={caughtBugCount}
+                onOpenBugPopup={() => setIsBugPopupOpen(prev => !prev)}
             />
 
             {/* Viewport Container */}

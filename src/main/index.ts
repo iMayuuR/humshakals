@@ -1,4 +1,5 @@
 import { app, shell, BrowserWindow, session, ipcMain, dialog, webContents, WebContentsView } from 'electron'
+import * as path from 'path'
 import { join } from 'path'
 import * as fs from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -10,7 +11,24 @@ import icon from '../../resources/icon.png?asset'
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 
-// Anti-bot switches
+// SECURITY: Allowed protocols for external URLs (no data:/blob: to prevent arbitrary JS execution)
+const ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'mailto:'])
+
+// SECURITY: Safe key pattern for fs-based store (prevents path traversal)
+const SAFE_STORE_KEY = /^[a-zA-Z0-9_-]+$/
+
+const isValidProtocol = (urlStr: string): boolean => {
+    try {
+        return ALLOWED_PROTOCOLS.has(new URL(urlStr).protocol)
+    } catch {
+        return false
+    }
+}
+
+// Anti-bot switches — SECURITY NOTE: These disable browser security features
+// (site isolation, COOP, SameSite cookies) intentionally because this app
+// is a responsive design tester that needs to load and inspect cross-origin content.
+// These are NOT safe for general browsing apps.
 app.commandLine.appendSwitch('disable-blink-features', 'AutomationControlled')
 app.commandLine.appendSwitch('disable-site-isolation-trials')
 app.commandLine.appendSwitch('disable-features', 'CrossOriginOpenerPolicy,SameSiteByDefaultCookies')
@@ -64,8 +82,10 @@ function setupAutoUpdater(mainWindow: BrowserWindow): void {
 function createWindow(): void {
     const deviceSession = session.fromPartition('persist:device')
 
-    deviceSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
-        callback(true)
+    // SECURITY: Only grant permissions actually needed for responsive testing
+    const ALLOWED_PERMISSIONS = new Set(['clipboard-read', 'clipboard-sanitized-write'])
+    deviceSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+        callback(ALLOWED_PERMISSIONS.has(permission))
     })
 
     const mainWindow = new BrowserWindow({
@@ -93,7 +113,11 @@ function createWindow(): void {
     })
 
     mainWindow.webContents.setWindowOpenHandler((details) => {
-        shell.openExternal(details.url)
+        if (isValidProtocol(details.url)) {
+            shell.openExternal(details.url)
+        } else {
+            console.log(`[Security] Blocked attempt to open external URL with disallowed protocol: ${details.url}`)
+        }
         return { action: 'deny' }
     })
 
@@ -102,6 +126,37 @@ function createWindow(): void {
     } else {
         mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
     }
+
+    // Network monitoring: attach to each device webview's session dynamically
+    // Skip the main window (defaultSession), attach to all other sessions (device webviews)
+    const monitoredSessions = new Set<number>()
+
+    app.on('web-contents-created', (_, contents) => {
+        contents.on('did-finish-load', () => {
+            try {
+                // Skip if already monitored or if it's the main window session
+                if (monitoredSessions.has(contents.id)) return
+                const sess = contents.session
+                if (sess === session.defaultSession) return
+
+                monitoredSessions.add(contents.id)
+
+                sess.webRequest.onCompleted((details) => {
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('network-request-completed', {
+                            url: details.url,
+                            statusCode: details.statusCode,
+                            method: details.method,
+                            resourceType: details.resourceType,
+                            fromCache: details.fromCache,
+                            webContentsId: details.webContentsId
+                        })
+                    }
+                })
+                console.log(`[Network Monitor] Attached to webContents #${contents.id}`)
+            } catch { /* ignore */ }
+        })
+    })
 
     setupAutoUpdater(mainWindow)
 }
@@ -162,16 +217,17 @@ ipcMain.handle('toggle-touch-cursor', async (_event, webContentsId: number, enab
 })
 
 // IPC handler for toggling docked/undocked DevTools on a specific webContents
-ipcMain.handle('open-devtools', async (_event, webContentsId: number, isDocked: boolean) => {
+ipcMain.handle('open-devtools', async (_event, webContentsId: number, isDocked: boolean, deviceName?: string) => {
     try {
         const wc = webContents.fromId(webContentsId);
         if (!wc) return false;
 
         if (wc.isDevToolsOpened()) {
             wc.closeDevTools();
+            return true;
         }
 
-        wc.openDevTools({ mode: isDocked ? 'right' : 'detach' });
+        wc.openDevTools({ mode: isDocked ? 'right' : 'detach', title: deviceName ? `DevTools - ${deviceName}` : undefined });
         return true;
     } catch (error) {
         console.error('[DevTools] Error opening devtools:', error);
@@ -189,7 +245,9 @@ ipcMain.handle('save-screenshot', async (_event, filename: string, dataUrl: stri
             fs.mkdirSync(humshakalsPath, { recursive: true })
         }
 
-        const filePath = join(humshakalsPath, filename)
+        // SECURITY: Strip path traversal from filename
+        const safeName = path.basename(filename)
+        const filePath = join(humshakalsPath, safeName)
         // Extract base64 payload from "data:image/png;base64,....."
         const base64Data = dataUrl.replace(/^data:image\/\w+;base64,/, "")
         const buffer = Buffer.from(base64Data, 'base64')
@@ -198,6 +256,27 @@ ipcMain.handle('save-screenshot', async (_event, filename: string, dataUrl: stri
         return filePath
     } catch (error) {
         console.error('[Screenshot] Error saving screenshot:', error)
+        throw error
+    }
+})
+
+// IPC handler for downloading DevTools Pocket bug reports
+ipcMain.handle('save-bug-report', async (_event, filename: string, content: string) => {
+    try {
+        const docsPath = app.getPath('documents')
+        const humshakalsPath = join(docsPath, 'humshakals')
+
+        if (!fs.existsSync(humshakalsPath)) {
+            fs.mkdirSync(humshakalsPath, { recursive: true })
+        }
+
+        // SECURITY: Strip path traversal from filename
+        const safeName = path.basename(filename)
+        const filePath = join(humshakalsPath, safeName)
+        await fs.promises.writeFile(filePath, content, 'utf-8')
+        return filePath
+    } catch (error) {
+        console.error('[Bug Report] Error saving report:', error)
         throw error
     }
 })
@@ -247,8 +326,50 @@ ipcMain.handle('install-update', () => {
     autoUpdater.quitAndInstall()
 })
 
-ipcMain.handle('open-external', (_event, url: string) => {
-    shell.openExternal(url)
+ipcMain.handle('open-external', (_event, urlStr: string) => {
+    if (isValidProtocol(urlStr)) {
+        shell.openExternal(urlStr)
+    } else {
+        console.log(`[Security] IPC blocked opening external URL: ${urlStr}`)
+    }
+})
+
+// Simple JSON storage using fs to avoid electron-store ESM build issues
+ipcMain.handle('store-get', async (_event, key: string) => {
+    try {
+        // SECURITY: Prevent path traversal via key
+        if (!SAFE_STORE_KEY.test(key)) {
+            console.log(`[Security] Rejected unsafe store key: ${key}`)
+            return null
+        }
+        const userDataPath = app.getPath('userData')
+        const filePath = path.join(userDataPath, `${key}.json`)
+        if (fs.existsSync(filePath)) {
+            const data = await fs.promises.readFile(filePath, 'utf-8')
+            return JSON.parse(data)
+        }
+        return null
+    } catch (e) {
+        console.error('Failed to read store', e)
+        return null
+    }
+})
+
+ipcMain.handle('store-set', async (_event, key: string, data: any) => {
+    try {
+        // SECURITY: Prevent path traversal via key
+        if (!SAFE_STORE_KEY.test(key)) {
+            console.log(`[Security] Rejected unsafe store key: ${key}`)
+            return false
+        }
+        const userDataPath = app.getPath('userData')
+        const filePath = path.join(userDataPath, `${key}.json`)
+        await fs.promises.writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8')
+        return true
+    } catch (e) {
+        console.error('Failed to write store', e)
+        return false
+    }
 })
 
 app.whenReady().then(() => {
@@ -277,6 +398,46 @@ app.whenReady().then(() => {
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+
+    // Global WebContents Protection (covers webviews too)
+    // Uses module-level isValidProtocol() and ALLOWED_PROTOCOLS
+    app.on('web-contents-created', (_, contents) => {
+        // Intercept window open events (like target="_blank" inside webviews)
+        contents.setWindowOpenHandler((details) => {
+            if (isValidProtocol(details.url)) {
+                shell.openExternal(details.url)
+            } else {
+                console.log(`[Security] WebContents blocked window open: ${details.url}`)
+            }
+            return { action: 'deny' }
+        })
+
+        // Intercept navigations (like location.href = 'gmsg://...' inside webviews)
+        contents.on('will-navigate', (event, url) => {
+            if (!isValidProtocol(url)) {
+                console.log(`[Security] WebContents blocked navigation: ${url}`)
+                event.preventDefault()
+            }
+        })
+
+        // Also block sub-frame navigations (iframes trying to open custom protocols)
+        contents.on('will-frame-navigate' as any, (event: any) => {
+            const url = event?.url
+            if (url && !isValidProtocol(url)) {
+                console.log(`[Security] WebContents blocked frame navigation: ${url}`)
+                event.preventDefault()
+            }
+        })
+    })
+
+    // Block known spam/ad custom protocols at the app level
+    const BLOCKED_PROTOCOLS = ['gmsg', 'intent', 'market', 'fb', 'whatsapp', 'tg', 'viber']
+    for (const proto of BLOCKED_PROTOCOLS) {
+        try {
+            // Prevent the OS from handling these protocols
+            app.removeAsDefaultProtocolClient(proto)
+        } catch { /* ignore */ }
+    }
 })
 
 app.on('window-all-closed', () => {

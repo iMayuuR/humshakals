@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.2.0] - 2026-02-27
+
+### 🚀 Major Enhancements
+- **DevTools Pocket**: New built-in monitoring panel per device with three segregated tabs:
+  - **Console Errors** — Captures errors filtered by source URL/domain. Supports comma-separated domain entries.
+  - **Console Logs** — Detects exact-match and numeric console logs. Auto-captures all pure-numeric logs; supports comma-separated filters.
+  - **Network Requests** — Intercepts completed network calls via `session.webRequest.onCompleted` (IPC relay from main process). Filters by URL path only (ignores query strings to avoid tracking pixel false positives). Supports comma-separated patterns.
+- **Color-Coded Stacking Toast Notifications**: Toasts are now color-coded by event type (🔴 error, 🟡 log, 🔵 network, 🟢 success). Multiple toasts stack vertically with smooth CSS slide-in animations and progressive opacity fade for older items.
+- **Responsive BugPopup UI**: The DevTools Pocket popup now adapts to device viewport width (260px fixed with max-width fallback), ensuring it fits on small mobile devices without overflow.
+- **Light/Dark Theme Fixes**: Fixed button text visibility in light mode (Download, Save Rules). Added `.btn-cta` utility for always-white CTA text.
+
+### 🔒 Security Hardening
+- **Path Traversal Prevention**: `store-get`/`store-set` IPC handlers now validate keys against a safe alphanumeric pattern.
+- **Filename Sanitization**: `save-screenshot` and `save-bug-report` handlers use `path.basename()` to strip directory traversal.
+- **Permission Restriction**: Device session permissions restricted from blanket-grant to clipboard-only.
+- **Protocol Allowlist Hardened**: Removed `data:`, `blob:`, `file:`, `devtools:` from external URL allowlist (only `http:`, `https:`, `mailto:` allowed).
+- **IPC Listener Cleanup**: Replaced `removeAllListeners` with `removeListener` in preload to prevent cross-component interference.
+- **Event Accumulation Cap**: DevTools Pocket events capped at 500 per device to prevent unbounded memory growth.
+- **Consolidated Security Constants**: Unified 3 duplicate `ALLOWED_PROTOCOLS` definitions into a single module-level constant.
+- **Anti-Bot Switches Documented**: Added security trade-off documentation for disabled browser features.
+
+### 🛠 Technical Improvements
+- **Network Monitoring Architecture**: Replaced deprecated `did-get-response-details` webview event with `session.webRequest.onCompleted` + IPC relay. Dynamic session attachment via `app.on('web-contents-created')`.
+- **Framework Noise Filter**: Console messages from AMP, GTM, DoubleClick, and other ad/analytics frameworks are automatically filtered out.
+- **DevTools Pocket Icon**: Changed from bug icon to terminal icon (`ic:round-terminal`).
+- **Protocol Leak Blocking**: Added `gmsg://`, `intent://`, `market://`, `fb://`, `whatsapp://`, `tg://`, `viber://` to blocked protocols.
+- **Removed Unused Dependency**: Uninstalled `electron-store` (replaced by custom fs-based JSON storage).
+
+### 🐛 Fixes
+- Fixed DevTools Pocket popup not toggling (only opened, never closed on click).
+- Fixed `will-frame-navigate` type cast for Electron v40 compatibility.
+
 ## [3.1.0] - 2026-02-25
 
 ### 🚀 Major Enhancements
