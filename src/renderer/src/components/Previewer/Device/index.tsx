@@ -26,6 +26,7 @@ export const DevicePreview = ({
 }: DevicePreviewProps) => {
     const dispatch = useDispatch()
     const webviewRef = useRef<Electron.WebviewTag>(null)
+    const containerRef = useRef<HTMLDivElement>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [hasError, setHasError] = useState(false)
     const [errorMsg, setErrorMsg] = useState('')
@@ -609,15 +610,71 @@ if (${device.type !== 'desktop'}) {
                 (msg.includes('%c') && msg.includes('font-weight'))
             if (isNoise) return
 
-            // Error Level (2)
-            if (e.level === 2) {
+            // ── STRICT CONSOLE ERROR FILTERING ──
+            // Only captures errors when filter keyword appears as a domain/path
+            // component in a URL context. Ignores non-URL matches like "bytes exceeded".
+            if (e.level >= 2) {
                 const rules = rulesRef.current
                 const filterField = rules.consoleFilterText.trim().toLowerCase()
-                // Match filter against the SOURCE URL/domain, supports comma-separated entries
-                const source = (e.sourceId || '').toLowerCase()
                 const filters = filterField ? filterField.split(',').map(s => s.trim()).filter(Boolean) : []
-                const isMatch = filters.length === 0 || filters.some(f => source.includes(f))
-                if (isMatch) {
+
+                // If no filters set → capture ALL errors
+                if (filters.length === 0) {
+                    dispatch(addCaughtEvent({
+                        deviceKey: device.id,
+                        event: {
+                            type: 'console-error',
+                            message: e.message,
+                            source: e.sourceId,
+                            line: e.line
+                        }
+                    }))
+                    showToast(`Bug caught on ${device.name}!`, 'error')
+                    return
+                }
+
+                // Extract all URLs from both sourceId AND message text
+                const urlRegex = /https?:\/\/[^\s'"<>]+|[\w.-]+\.[a-z]{2,}(?:\/[^\s'"<>]*)?/gi
+                const sourceUrl = (e.sourceId || '').toLowerCase()
+                const messageText = e.message.toLowerCase()
+
+                const allUrls: string[] = []
+                if (sourceUrl) allUrls.push(sourceUrl)
+                const msgUrls = messageText.match(urlRegex) || []
+                allUrls.push(...msgUrls.map(u => u.toLowerCase()))
+
+                // Check if ANY filter keyword appears as a domain component in ANY extracted URL
+                const isDomainMatch = filters.some(keyword => {
+                    return allUrls.some(url => {
+                        try {
+                            // Try parsing as full URL
+                            const parsed = new URL(url.startsWith('http') ? url : `https://${url}`)
+                            const hostname = parsed.hostname // e.g. "cdn.bytes.media.net"
+                            const pathname = parsed.pathname  // e.g. "/assets/player.js"
+
+                            // Check hostname: keyword must be a dot-separated component
+                            // e.g. "bytes" matches "cdn.bytes.com" but NOT "somebytes.com"
+                            const hostParts = hostname.split('.')
+                            if (hostParts.some(part => part === keyword || part.includes(keyword))) return true
+
+                            // Check path: keyword in filename or path segment
+                            const pathParts = pathname.split('/')
+                            if (pathParts.some(part => part.includes(keyword))) return true
+
+                            return false
+                        } catch {
+                            // Fallback: check if keyword appears as domain-like pattern in raw URL
+                            // Matches: .keyword. or keyword. or /keyword/ or /keyword.js
+                            const domainPattern = new RegExp(
+                                `(?:^|[./])${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:[./]|$)`,
+                                'i'
+                            )
+                            return domainPattern.test(url)
+                        }
+                    })
+                })
+
+                if (isDomainMatch) {
                     dispatch(addCaughtEvent({
                         deviceKey: device.id,
                         event: {
@@ -770,9 +827,9 @@ if (${device.type !== 'desktop'}) {
     }, [])
 
     return (
-        <div className="device-card flex-shrink-0 relative">
+        <div ref={containerRef} className="device-card flex-shrink-0 relative">
             {isBugPopupOpen && (
-                <BugPopup device={device} onClose={() => setIsBugPopupOpen(false)} />
+                <BugPopup device={device} anchorRef={containerRef} onClose={() => setIsBugPopupOpen(false)} />
             )}
 
             {/* Device Header */}
