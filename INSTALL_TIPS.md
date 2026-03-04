@@ -1,18 +1,18 @@
-# 🛡️ Installation Safety & "Tigdam" Guide
+# 🛡️ Installation and Security Guidelines
 
-Since this is a private/developer tool and we haven't bought a $400/year "Code Signing Certificate", Windows will show a blue screen warning (**SmartScreen**) saying "Windows protected your PC".
+Because Humshakals is an open-source developer tool distributed independently, it currently does not utilize paid Code Signing Certificates. As a result, operating systems like Windows may display security warnings prior to installation.
 
-Here is the "Tigdam" (Workaround) to install it safely and easily.
+Below are the standard procedures to safely bypass these warnings and install the application.
 
-## Method 1: The "Run Anyway" Trick (Standard)
+## Method 1: The "Run Anyway" Option (Standard)
 
 When the blue box appears:
 1.  Click **"More info"** text (it's small and underlined).
 2.  A new button **"Run anyway"** will appear.
 3.  Click it.
-*You only have to do this once. Windows will remember it.*
+*Note: Windows will remember this preference for future launches of this specific version.*
 
-## Method 2: The "Unblock" Trick (Pro)
+## Method 2: Unblocking the Executable (Advanced)
 
 To prevent the warning entirely for a specific file:
 1.  Right-click the downloaded `.exe` file.
@@ -20,9 +20,9 @@ To prevent the warning entirely for a specific file:
 3.  At the bottom of the "General" tab, look for a standard security options.
 4.  Check the box **✅ Unblock**.
 5.  Click **Apply** > **OK**.
-6.  Now run the installer - no warning!
+6.  Now run the installer.
 
-## Method 3: Browser "Keep" Trick
+## Method 3: Browser Download Warnings
 
 If Chrome/Edge says "This file is not commonly downloaded":
 1.  Click the **three dots** (...) on the download item.
@@ -31,5 +31,20 @@ If Chrome/Edge says "This file is not commonly downloaded":
 
 ---
 
-## Why this happens?
-This isn't a virus warning. It just means "Microsoft doesn't know this publisher yet". To remove this officially, developers have to pay ~30,000 INR/year for a certificate. For free tools, using the "More info" trick is the standard way!
+## 🍏 macOS: "App is damaged and can't be opened"
+
+If you are on macOS (Sequoia, Sonoma, etc.) and get an error saying **"Humshakals is damaged and can't be opened. You should move it to the Trash."**, this is macOS Gatekeeper blocking the app because it doesn't have a paid Apple Developer signature.
+
+**The Fix (xattr trick):**
+1. Drag `Humshakals.app` from the DMG into your **Applications** folder.
+2. Open the **Terminal** app (Command + Space > type "Terminal").
+3. Paste this exact command and hit Enter:
+   ```bash
+   xattr -cr /Applications/Humshakals.app
+   ```
+4. Now double-click the app in your Applications folder. It will open perfectly!
+
+---
+
+## Technical Context
+These security prompts do not indicate the presence of malware. They simply denote that the publisher is unverified within the Apple or Microsoft ecosystems. Utilizing these manual bypass methods is standard practice for free and open-source applications.
