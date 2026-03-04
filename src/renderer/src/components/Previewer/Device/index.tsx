@@ -700,7 +700,8 @@ if (${device.type !== 'desktop'}) {
 
                 // If ANY matcher is a number, enable auto-detection of ALL numeric console.logs
                 const hasNumericMatcher = matchers.some(m => /^\d+$/.test(m))
-                const isMsgNumeric = /^\d+(\.\d+)?$/.test(trimmedMsg)
+                // Detects '123', '5======', '--- 5  ---', etc.
+                const isMsgNumeric = /^[=\-\s]*\d+(\.\d+)?[=\-\s]*$/.test(trimmedMsg)
                 const isNumericMatch = hasNumericMatcher && isMsgNumeric
 
                 // Non-numeric entries use exact match
