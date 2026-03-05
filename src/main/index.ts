@@ -379,15 +379,29 @@ app.whenReady().then(() => {
         optimizer.watchWindowShortcuts(window)
     })
 
-    // Anti-bot: Normalize headers for all sessions
+    // Anti-bot: Normalize headers for all sessions to bypass Cloudflare
+    const cleanUserAgent = session.defaultSession.getUserAgent()
+        .replace(/Electron\/[0-9.-]+\s/, '')
+        .replace(/humshakals\/[0-9.-]+\s/, '');
+
+    app.userAgentFallback = cleanUserAgent;
+
     app.on('session-created', (sess) => {
         sess.webRequest.onBeforeSendHeaders((details, callback) => {
-            const { requestHeaders } = details
+            const requestHeaders = { ...details.requestHeaders }
+
+            // Force Chrome User-Agent
+            requestHeaders['User-Agent'] = cleanUserAgent
 
             // Remove Electron/bot fingerprints
             delete requestHeaders['Sec-Ch-Ua']
             delete requestHeaders['Sec-Ch-Ua-Mobile']
             delete requestHeaders['Sec-Ch-Ua-Platform']
+
+            // Spoof standard Chrome ACCEPT headers
+            if (!requestHeaders['Accept-Language']) {
+                requestHeaders['Accept-Language'] = 'en-US,en;q=0.9'
+            }
 
             callback({ requestHeaders })
         })
