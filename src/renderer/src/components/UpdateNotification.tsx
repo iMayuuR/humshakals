@@ -40,7 +40,7 @@ export const UpdateNotification = () => {
     if (state === 'idle') return null
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 w-80 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-2xl p-4 space-y-3 animate-in slide-in-from-bottom-8 duration-300">
+        <div className="fixed bottom-6 right-6 z-50 w-80 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.2)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.5)] p-4 space-y-3 animate-in slide-in-from-bottom-8 duration-300">
             {state === 'downloading' && (
                 <>
                     <div className="flex items-center gap-2">
