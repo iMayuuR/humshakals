@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.3.0] - 2026-03-06
+
+### 🚀 Major Enhancements
+- **Smart Address Bar**:
+  - `Ctrl/Cmd + Enter` wraps input in `www.[input].com` and navigates automatically.
+  - Hitting `Enter` with a non-URL query automatically performs a Google search (`https://www.google.com/search?q=[query]`).
+  - Single-click on the address bar instantly selects the entire URL.
+  - Address bar input intelligently restores the active URL on blur, replicating standard browser behavior.
+- **Bookmarks System**: Added full bookmark support via Redux and Electron IPC. 
+  - Toggle bookmarks using `Ctrl/Cmd + D` or clicking the new star icon.
+  - Dedicated popover menu to browse and delete bookmarks.
+- **Clear Device Data Utility**: One-click actions directly from the address bar to clear Cache, Storage (Local/IndexedDB), and Cookies across all emulated devices.
+- **Human-Readable Error Handling**: Electron's raw network errors (e.g., `ERR_INTERNET_DISCONNECTED`) are now beautifully mapped to user-friendly messages for a cleaner experience.
+
+### 🛠 UI & Workflow Improvements
+- **OS-Native Shortcuts Modal**: Replaced standard bindings with a dynamic shortcuts panel that detects Windows or macOS and displays the correct native modifier keys (`Ctrl/Alt` vs `⌘/⌥`).
+- **Hard Reload Feature**: Added `Ctrl/Cmd + Shift + R` shortcut to clear cache and reload all viewports simultaneously.
+
 ## [3.2.0] - 2026-02-27
 
 ### 🚀 Major Enhancements

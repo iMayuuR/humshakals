@@ -9,6 +9,7 @@
 
 *   **📱 Multi-Device Mirroring:** Preview your site on flagship devices including iPhone 16 Pro Max, Samsung S25 Ultra, and iPad Pro with pixel-perfect accuracy.
 *   **👆 True Native DevTools Touch:** Uses pure Chrome DevTools Protocol (CDP) for flawless touch emulation. Features a seamless **Global UI Toggle** to command precise Mobile Drag-to-Scroll and momentum swiping natively, even across cross-origin IFrames.
+*   **🌐 Smart Browsing Tools:** Fully-featured address bar with auto-search fallback, `Ctrl+Enter` domain resolution, integrated bookmarks system, and one-click tools to clear Cache, Cookies, and Storage across all emulated devices.
 *   **🔄 Synchronized Testing:**
     *   **Click Sync:** Interaction events are propagated instantly to all devices.
     *   **Navigation Sync:** Unified browsing experience across the entire device suite.

@@ -372,6 +372,31 @@ ipcMain.handle('store-set', async (_event, key: string, data: any) => {
     }
 })
 
+ipcMain.handle('clear-device-data', async (_event, type: 'cookies' | 'storage' | 'cache') => {
+    try {
+        const allContents = webContents.getAllWebContents()
+        const clearedSessions = new Set<Electron.Session>()
+        
+        for (const wc of allContents) {
+            const sess = wc.session
+            if (sess !== session.defaultSession && !clearedSessions.has(sess)) {
+                clearedSessions.add(sess)
+                if (type === 'cache') {
+                    await sess.clearCache()
+                } else if (type === 'cookies') {
+                    await sess.clearStorageData({ storages: ['cookies'] })
+                } else if (type === 'storage') {
+                    await sess.clearStorageData({ storages: ['localstorage', 'indexdb', 'websql', 'indexeddb'] })
+                }
+            }
+        }
+        return true
+    } catch (e) {
+        console.error('Failed to clear device data', e)
+        return false
+    }
+})
+
 app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.humshakals.pro')
 

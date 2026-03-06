@@ -3,13 +3,15 @@ import devicesReducer from './slices/devices'
 import rendererReducer from './slices/renderer'
 import uiReducer from './slices/ui'
 import devtoolsPocketReducer from './slices/devtoolsPocket'
+import bookmarksReducer from './slices/bookmarks'
 
 export const store = configureStore({
     reducer: {
         devices: devicesReducer,
         renderer: rendererReducer,
         ui: uiReducer,
-        devtoolsPocket: devtoolsPocketReducer
+        devtoolsPocket: devtoolsPocketReducer,
+        bookmarks: bookmarksReducer
     }
 })
 

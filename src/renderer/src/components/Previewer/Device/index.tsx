@@ -31,7 +31,6 @@ export const DevicePreview = ({
     const [hasError, setHasError] = useState(false)
     const [errorMsg, setErrorMsg] = useState('')
     const [singleRotated, setSingleRotated] = useState(false)
-    const [isMirroringOff, setIsMirroringOff] = useState(false)
     const [isScreenshotLoading, setIsScreenshotLoading] = useState(false)
     const [hasInitialReload, setHasInitialReload] = useState(false)
     const [isDevToolsOpen, setIsDevToolsOpen] = useState(false)
@@ -346,6 +345,7 @@ export const DevicePreview = ({
                     return new OriginalDTF(locales, options);
                 };
                 Intl.DateTimeFormat.prototype = OriginalDTF.prototype;
+                Intl.DateTimeFormat.supportedLocalesOf = OriginalDTF.supportedLocalesOf;
 
                 // Override Date.prototype.getTimezoneOffset (UTC-8 = 480 min)
                 Date.prototype.getTimezoneOffset = () => 480;
@@ -585,7 +585,20 @@ if (${device.type !== 'desktop'}) {
             if (!e.isMainFrame) return
 
             setHasError(true)
-            setErrorMsg(e.errorDescription || 'Failed to load')
+            
+            let userFriendlyMsg = e.errorDescription || 'Failed to load'
+            if (e.errorDescription === 'ERR_INTERNET_DISCONNECTED') {
+                userFriendlyMsg = 'No Internet Connection. Please check your network.'
+            } else if (e.errorDescription === 'ERR_NAME_NOT_RESOLVED') {
+                userFriendlyMsg = 'Site Not Found. Please check the URL.'
+            } else if (e.errorDescription === 'ERR_CONNECTION_REFUSED') {
+                userFriendlyMsg = 'Connection Refused by Server.'
+            } else if (e.errorDescription && e.errorDescription.startsWith('ERR_')) {
+                userFriendlyMsg = e.errorDescription.replace('ERR_', '').replace(/_/g, ' ')
+                userFriendlyMsg = userFriendlyMsg.charAt(0).toUpperCase() + userFriendlyMsg.slice(1).toLowerCase()
+            }
+            
+            setErrorMsg(userFriendlyMsg)
             setIsLoading(false)
         }
 
@@ -799,12 +812,6 @@ if (${device.type !== 'desktop'}) {
         setIsScreenshotLoading(false)
     }, [device.name])
 
-
-
-    const handleToggleMirroring = useCallback(() => {
-        setIsMirroringOff(!isMirroringOff)
-    }, [isMirroringOff])
-
     const handleOpenDevtools = useCallback(() => {
         // @ts-ignore
         const wcId = webviewRef.current?.getWebContentsId?.()
@@ -855,11 +862,9 @@ if (${device.type !== 'desktop'}) {
             <DeviceToolbar
                 onRefresh={handleRefresh}
                 onQuickScreenshot={handleQuickScreenshot}
-                onToggleMirroring={handleToggleMirroring}
                 onOpenDevtools={handleOpenDevtools}
                 onRotate={handleRotate}
                 onScrollToTop={handleScrollToTop}
-                isMirroringOff={isMirroringOff}
                 canRotate={device.isMobileCapable}
                 isRotated={singleRotated}
                 isScreenshotLoading={isScreenshotLoading}

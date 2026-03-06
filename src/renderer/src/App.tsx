@@ -6,11 +6,13 @@ import { Previewer } from './components/Previewer'
 import { DeviceManager } from './components/DeviceManager'
 import { AboutModal } from './components/AboutModal'
 import { GlobalDevToolsModal } from './components/GlobalDevToolsModal'
+import { ShortcutsModal } from './components/ShortcutsModal'
 import { UpdateNotification } from './components/UpdateNotification'
-import { setIsInspecting, selectIsInspecting } from './store/slices/renderer'
+import { setIsInspecting, selectIsInspecting, selectAddress } from './store/slices/renderer'
 import { selectColorScheme, toggleColorScheme } from './store/slices/ui'
 import { loadCustomDevicesAsync } from './store/slices/devices'
 import { loadDevToolsRulesAsync } from './store/slices/devtoolsPocket'
+import { loadBookmarksAsync, toggleBookmark } from './store/slices/bookmarks'
 import { getFormattedDate, getCleanDomain, cleanString } from './utils/helpers'
 
 interface ToastItem {
@@ -67,32 +69,14 @@ function App() {
         dispatch(loadCustomDevicesAsync())
         // @ts-ignore
         dispatch(loadDevToolsRulesAsync())
+        // @ts-ignore
+        dispatch(loadBookmarksAsync())
     }, [dispatch])
 
     // Apply theme to document
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', colorScheme)
     }, [colorScheme])
-
-    // Keyboard shortcuts
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // Ctrl+I - Toggle Inspect Mode
-            if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-                e.preventDefault()
-                dispatch(setIsInspecting(!isInspecting))
-            }
-
-            // Ctrl+R / F5 - Reload All
-            if (((e.ctrlKey || e.metaKey) && e.key === 'r') || e.key === 'F5') {
-                e.preventDefault()
-                handleReloadAll()
-            }
-        }
-
-        window.addEventListener('keydown', handleKeyDown)
-        return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [dispatch, isInspecting])
 
     const handleReloadAll = useCallback(() => {
         const webviews = document.querySelectorAll('webview') as NodeListOf<Electron.WebviewTag>
@@ -148,6 +132,119 @@ function App() {
         dispatch(toggleColorScheme())
     }, [dispatch])
 
+    // Keyboard shortcuts
+    const rotateDevices = useSelector((state: any) => state.renderer.rotateDevices)
+    const zoomFactor = useSelector((state: any) => state.renderer.zoomFactor)
+    const address = useSelector(selectAddress)
+    
+    useEffect(() => {
+        const handleKeyDown = async (e: KeyboardEvent) => {
+            const isMac = window.api?.platform?.toLowerCase().includes('mac') || navigator.platform.toLowerCase().includes('mac')
+            const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey
+
+            // General Shortcuts
+            if (e.altKey && e.key === 'ArrowLeft') {
+                e.preventDefault()
+                handleGoBack()
+            }
+            if (e.altKey && e.key === 'ArrowRight') {
+                e.preventDefault()
+                handleGoForward()
+            }
+            if (cmdOrCtrl && e.altKey && (e.key === 'Delete' || e.key === 'Backspace')) {
+                e.preventDefault()
+                if (window.api?.clearDeviceData) {
+                    await window.api.clearDeviceData('cache')
+                    await window.api.clearDeviceData('cookies')
+                    await window.api.clearDeviceData('storage')
+                    window.dispatchEvent(new CustomEvent('app-toast', { detail: 'Cleared all device data!' }))
+                    handleReloadAll()
+                }
+            }
+            if (cmdOrCtrl && e.altKey && e.key.toLowerCase() === 'z') {
+                e.preventDefault()
+                if (window.api?.clearDeviceData) {
+                    await window.api.clearDeviceData('cache')
+                    window.dispatchEvent(new CustomEvent('app-toast', { detail: 'Cache cleared!' }))
+                    handleReloadAll()
+                }
+            }
+            if (cmdOrCtrl && e.altKey && e.key.toLowerCase() === 'a') {
+                e.preventDefault()
+                if (window.api?.clearDeviceData) {
+                    await window.api.clearDeviceData('cookies')
+                    window.dispatchEvent(new CustomEvent('app-toast', { detail: 'Cookies cleared!' }))
+                    handleReloadAll()
+                }
+            }
+            if (cmdOrCtrl && e.altKey && e.key.toLowerCase() === 'q') {
+                e.preventDefault()
+                if (window.api?.clearDeviceData) {
+                    await window.api.clearDeviceData('storage')
+                    window.dispatchEvent(new CustomEvent('app-toast', { detail: 'Storage cleared!' }))
+                    handleReloadAll()
+                }
+            }
+            if (cmdOrCtrl && e.key.toLowerCase() === 'l') {
+                e.preventDefault()
+                const input = document.querySelector('.address-bar') as HTMLInputElement
+                if (input) {
+                    input.focus()
+                    input.select()
+                }
+            }
+            if (cmdOrCtrl && e.key.toLowerCase() === 'd') {
+                e.preventDefault()
+                if (address && address !== 'about:blank') {
+                    dispatch(toggleBookmark({ url: address, title: getCleanDomain(address) || address }))
+                    window.dispatchEvent(new CustomEvent('app-toast', { detail: 'Bookmarks updated!' }))
+                }
+            }
+
+            // Previewer Shortcuts
+            if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === 'r') {
+                e.preventDefault()
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+                if (window.api?.clearDeviceData) {
+                    await window.api.clearDeviceData('cache')
+                    window.dispatchEvent(new CustomEvent('app-toast', { detail: 'Hard Reload: Cache cleared!' }))
+                    handleReloadAll()
+                }
+            } else if ((cmdOrCtrl && e.key.toLowerCase() === 'r') || e.key === 'F5') {
+                e.preventDefault()
+                if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+                handleReloadAll()
+            }
+            if (cmdOrCtrl && e.altKey && e.key.toLowerCase() === 'r') {
+                e.preventDefault()
+                dispatch({ type: 'renderer/setRotateDevices', payload: !rotateDevices })
+            }
+            if (cmdOrCtrl && e.key.toLowerCase() === 's') {
+                e.preventDefault()
+                handleScreenshotAll()
+            }
+            if (cmdOrCtrl && e.key.toLowerCase() === 't') {
+                e.preventDefault()
+                handleToggleTheme()
+            }
+            if (cmdOrCtrl && (e.key === '=' || e.key === '+')) {
+                e.preventDefault()
+                dispatch({ type: 'renderer/setZoomFactor', payload: Math.min(zoomFactor + 0.1, 2) })
+            }
+            if (cmdOrCtrl && e.key === '-') {
+                e.preventDefault()
+                dispatch({ type: 'renderer/setZoomFactor', payload: Math.max(zoomFactor - 0.1, 0.2) })
+            }
+            if (e.altKey && e.key.toLowerCase() === 'r') {
+                e.preventDefault()
+                // Action logic reserved for toggle rulers if needed
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [dispatch, isInspecting, handleGoBack, handleGoForward, handleReloadAll, handleScreenshotAll, handleToggleTheme, rotateDevices, zoomFactor])
+
     return (
         <div className="h-screen flex flex-col bg-surface-dark">
             {/* Main Toolbar */}
@@ -169,6 +266,7 @@ function App() {
             <DeviceManager />
             <AboutModal />
             <GlobalDevToolsModal />
+            <ShortcutsModal />
             <UpdateNotification />
 
             {/* Global Stacking Toast Notifications */}

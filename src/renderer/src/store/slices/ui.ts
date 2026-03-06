@@ -7,12 +7,14 @@ export interface UIState {
     colorScheme: ColorScheme
     showDeviceManager: boolean
     showAboutModal: boolean
+    showShortcutsModal: boolean
 }
 
 const initialState: UIState = {
     colorScheme: 'dark',
     showDeviceManager: false,
-    showAboutModal: false
+    showAboutModal: false,
+    showShortcutsModal: false
 }
 
 const uiSlice = createSlice({
@@ -36,14 +38,21 @@ const uiSlice = createSlice({
         },
         setShowAboutModal: (state, action: PayloadAction<boolean>) => {
             state.showAboutModal = action.payload
+        },
+        toggleShortcutsModal: (state) => {
+            state.showShortcutsModal = !state.showShortcutsModal
+        },
+        setShowShortcutsModal: (state, action: PayloadAction<boolean>) => {
+            state.showShortcutsModal = action.payload
         }
     }
 })
 
-export const { setColorScheme, toggleColorScheme, toggleDeviceManager, setShowDeviceManager, toggleAboutModal, setShowAboutModal } = uiSlice.actions
+export const { setColorScheme, toggleColorScheme, toggleDeviceManager, setShowDeviceManager, toggleAboutModal, setShowAboutModal, toggleShortcutsModal, setShowShortcutsModal } = uiSlice.actions
 
 export const selectColorScheme = (state: RootState) => state.ui.colorScheme
 export const selectShowDeviceManager = (state: RootState) => state.ui.showDeviceManager
 export const selectShowAboutModal = (state: RootState) => state.ui.showAboutModal
+export const selectShowShortcutsModal = (state: RootState) => state.ui.showShortcutsModal
 
 export default uiSlice.reducer

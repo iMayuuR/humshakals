@@ -4,11 +4,9 @@ import { Button } from '../../Button'
 interface DeviceToolbarProps {
     onRefresh: () => void
     onQuickScreenshot: () => void
-    onToggleMirroring: () => void
     onOpenDevtools: () => void
     onRotate: () => void
     onScrollToTop: () => void
-    isMirroringOff: boolean
     canRotate: boolean
     isRotated: boolean
     isScreenshotLoading: boolean
@@ -20,11 +18,9 @@ interface DeviceToolbarProps {
 export const DeviceToolbar = ({
     onRefresh,
     onQuickScreenshot,
-    onToggleMirroring,
     onOpenDevtools,
     onRotate,
     onScrollToTop,
-    isMirroringOff,
     canRotate,
     isRotated,
     isScreenshotLoading,
@@ -49,17 +45,6 @@ export const DeviceToolbar = ({
                     <Icon icon="ic:outline-photo-camera" className="absolute top-0 left-0" width={16} />
                     <Icon icon="clarity:lightning-solid" className="absolute -top-0.5 -right-0.5" width={8} />
                 </div>
-            </Button>
-
-
-
-            {/* Toggle Event Mirroring */}
-            <Button
-                onClick={onToggleMirroring}
-                isActive={isMirroringOff}
-                title={isMirroringOff ? "Enable Event Mirroring" : "Disable Event Mirroring"}
-            >
-                <Icon icon="fluent:plug-disconnected-24-regular" width={16} />
             </Button>
 
             {/* DevTools */}

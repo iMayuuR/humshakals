@@ -9,10 +9,11 @@ import {
     setAddress,
     selectAddress
 } from '../../store/slices/renderer'
-import { toggleAboutModal } from '../../store/slices/ui'
+import { toggleAboutModal, toggleShortcutsModal } from '../../store/slices/ui'
 import { toggleGlobalModal } from '../../store/slices/devtoolsPocket'
 import { NavigationControls } from './NavigationControls'
 import { AddressBar } from './AddressBar'
+import { BookmarksMenu } from './BookmarksMenu'
 import { PreviewSuiteSelector } from './PreviewSuiteSelector'
 import { Button, Divider } from '../Button'
 
@@ -55,11 +56,14 @@ export const ToolBar = ({
         <div className="main-toolbar h-12 flex items-center justify-between px-3">
 
             {/* Left: Navigation */}
-            <NavigationControls
-                onBack={onGoBack}
-                onForward={onGoForward}
-                onReload={onReloadAll}
-            />
+            <div className="flex items-center gap-1">
+                <NavigationControls
+                    onBack={onGoBack}
+                    onForward={onGoForward}
+                    onReload={onReloadAll}
+                />
+                <BookmarksMenu />
+            </div>
 
             {/* Center: Address Bar */}
             <AddressBar
@@ -123,6 +127,13 @@ export const ToolBar = ({
                 <Divider />
 
                 <Divider />
+
+                <Button
+                    onClick={() => dispatch(toggleShortcutsModal())}
+                    title="Shortcuts"
+                >
+                    <Icon icon="lucide:keyboard" width={18} />
+                </Button>
 
                 <Button
                     onClick={() => dispatch(toggleAboutModal())}

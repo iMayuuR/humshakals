@@ -17,6 +17,7 @@ const api = {
         ipcRenderer.invoke('save-bug-report', filename, content),
     installUpdate: () => ipcRenderer.invoke('install-update'),
     openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
+    clearDeviceData: (type: 'cookies' | 'storage' | 'cache') => ipcRenderer.invoke('clear-device-data', type),
 
     getAppVersion: () => ipcRenderer.invoke('get-app-version'),
 

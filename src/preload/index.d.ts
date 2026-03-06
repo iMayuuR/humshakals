@@ -16,6 +16,7 @@ declare global {
             saveBugReport: (filename: string, content: string) => Promise<string>
             installUpdate: () => Promise<void>
             openExternal: (url: string) => Promise<void>
+            clearDeviceData: (type: 'cookies' | 'storage' | 'cache') => Promise<boolean>
             getUserAgent: () => Promise<string>
             versions: NodeJS.ProcessVersions
             platform: NodeJS.Platform
