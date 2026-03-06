@@ -40,20 +40,20 @@ export const UpdateNotification = () => {
     if (state === 'idle') return null
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 w-80 bg-bg-secondary border border-border-color rounded-xl shadow-2xl p-4 space-y-3 animate-in slide-in-from-bottom-8 duration-300">
+        <div className="fixed bottom-6 right-6 z-50 w-80 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl shadow-2xl p-4 space-y-3 animate-in slide-in-from-bottom-8 duration-300">
             {state === 'downloading' && (
                 <>
                     <div className="flex items-center gap-2">
-                        <Icon icon="eos-icons:loading" className="text-accent animate-spin" width={20} />
-                        <span className="text-sm font-semibold text-text-primary">Downloading update...</span>
+                        <Icon icon="eos-icons:loading" className="text-[var(--accent)] animate-spin" width={20} />
+                        <span className="text-sm font-semibold text-[var(--text-primary)]">Downloading update...</span>
                     </div>
-                    <div className="w-full bg-bg-tertiary rounded-full h-2">
+                    <div className="w-full bg-[var(--bg-tertiary)] rounded-full h-2">
                         <div
-                            className="bg-accent h-2 rounded-full transition-all duration-300"
+                            className="bg-[var(--accent)] h-2 rounded-full transition-all duration-300"
                             style={{ width: `${progress}%` }}
                         />
                     </div>
-                    <p className="text-xs text-muted font-medium">{progress}% — App will restart when ready.</p>
+                    <p className="text-xs text-[var(--text-muted)] font-medium">{progress}% — App will restart when ready.</p>
                 </>
             )}
             {state === 'ready' && (
@@ -63,8 +63,8 @@ export const UpdateNotification = () => {
                             <Icon icon="mdi:arrow-down-bold-circle-outline" className="text-green-500" width={24} />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <span className="text-base font-bold text-text-primary">Update Ready to Install!</span>
-                            <span className="text-xs text-text-secondary leading-tight">
+                            <span className="text-base font-bold text-[var(--text-primary)]">Update Ready to Install!</span>
+                            <span className="text-xs text-[var(--text-secondary)] leading-tight">
                                 A new version with bug fixes and features has been safely downloaded.
                             </span>
                         </div>
@@ -73,14 +73,14 @@ export const UpdateNotification = () => {
                     <div className="flex gap-2 pt-2">
                         <button
                             onClick={handleInstall}
-                            className="flex-1 bg-accent hover:bg-accent-hover text-white py-1.5 px-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                            className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white py-1.5 px-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                         >
                             <Icon icon="mdi:restart" width={16} />
                             Restart Now
                         </button>
                         <button
                             onClick={handleViewRelease}
-                            className="flex-none bg-bg-tertiary hover:bg-btn-hover text-text-secondary py-1.5 px-3 rounded-lg text-sm font-medium transition-colors border border-border-color shadow-sm"
+                            className="flex-none bg-[var(--bg-tertiary)] hover:bg-[var(--btn-hover)] text-[var(--text-secondary)] py-1.5 px-3 rounded-lg text-sm font-medium transition-colors border border-[var(--border-color)] shadow-sm"
                             title="View Release on GitHub"
                         >
                             <Icon icon="mdi:github" width={18} />
