@@ -43,9 +43,6 @@ function renderLatestReleaseAssets(release) {
     const file = document.querySelector(`[data-release-file="${kind}"]`);
     if (file) file.textContent = assets[kind].name;
   }
-  const windowsCommand = document.querySelector('[data-release-command="windows"]');
-  if (windowsCommand) windowsCommand.textContent =
-    `Get-FileHash "$env:USERPROFILE\\Downloads\\${assets.windows.name}" -Algorithm SHA256`;
   const macCommand = document.querySelector('[data-release-command="mac"]');
   if (macCommand) macCommand.textContent = `shasum -a 256 ~/Downloads/${assets.mac.name}`;
   document.querySelectorAll('[data-release-status]').forEach(node => {
@@ -71,9 +68,6 @@ function renderLatestReleaseFallback() {
     const file = document.querySelector(`[data-release-file="${kind}"]`);
     if (file) file.textContent = name;
   }
-  const windowsCommand = document.querySelector('[data-release-command="windows"]');
-  if (windowsCommand) windowsCommand.textContent =
-    'Get-FileHash "C:\\path\\to\\downloaded-setup.exe" -Algorithm SHA256';
   const macCommand = document.querySelector('[data-release-command="mac"]');
   if (macCommand) macCommand.textContent = 'shasum -a 256 ~/Downloads/your-downloaded-file.dmg';
   document.querySelectorAll('[data-release-status]').forEach(node => {
