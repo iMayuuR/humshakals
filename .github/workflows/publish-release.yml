@@ -49,10 +49,30 @@ jobs:
           done < <(git ls-tree -r --name-only "$TAG")
 
           mkdir -p verification
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" > verification/release.json
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir verification \
-            --pattern 'SHA256SUMS.txt' --pattern 'latest.yml' --pattern 'latest-mac.yml'
+          # GitHub's release-by-tag API can return 404 for an unpublished draft.
+          # Resolve it from the authenticated release list, then fetch assets by ID.
+          mapfile -t release_ids < <(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" |
+            jq -r --arg tag "$TAG" '.[] | select(.tag_name == $tag and .draft == true) | .id')
+          [[ ${#release_ids[@]} -eq 1 ]] || { echo '::error::Expected exactly one matching draft release.'; exit 1; }
+          gh api "repos/$GITHUB_REPOSITORY/releases/${release_ids[0]}" > verification/release.json
+          for name in SHA256SUMS.txt latest.yml latest-mac.yml; do
+            asset_id="$(jq -r --arg name "$name" '.assets[] | select(.name == $name) | .id' verification/release.json)"
+            [[ "$asset_id" =~ ^[0-9]+$ ]] || { echo "::error::Missing draft asset: $name"; exit 1; }
+            curl --fail --silent --show-error --location \
+              --header "Authorization: Bearer $GH_TOKEN" \
+              --header 'Accept: application/octet-stream' \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" \
+              --output "verification/$name"
+          done
           node scripts/verify-release.mjs "$TAG" verification/release.json \
             verification/SHA256SUMS.txt verification/latest.yml verification/latest-mac.yml
 
-          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
+          curl --fail --silent --show-error \
+            --request PATCH \
+            --header "Authorization: Bearer $GH_TOKEN" \
+            --header 'Accept: application/vnd.github+json' \
+            --header 'Content-Type: application/json' \
+            --data '{"draft":false,"make_latest":"true"}' \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/${release_ids[0]}" \
+            --output verification/published.json
+          jq -e --arg tag "$TAG" '.draft == false and .tag_name == $tag' verification/published.json >/dev/null
