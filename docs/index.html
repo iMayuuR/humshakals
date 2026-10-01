@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b14">
+  <meta name="description" content="Humshakals is a desktop workbench for responsive QA: compare real content viewports, run Playwright on visible screens, inspect evidence, and use an optional browser agent.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Humshakals — one canvas for every breakpoint">
+  <meta property="og:description" content="Preview, inspect, automate and explain responsive experiences in one desktop workspace.">
+  <title>Humshakals — One canvas for every breakpoint</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="page-glow" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a class="brand" href="#top" aria-label="Humshakals home">
+        <img src="logo.png" alt="" width="38" height="38">
+        <span>Humshakals</span>
+      </a>
+      <nav class="site-nav" id="primary-nav" aria-label="Primary navigation">
+        <a href="#workspace">Workspace</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#reality">The real story</a>
+        <a href="#faq">FAQ</a>
+        <a class="site-nav__mobile-cta" href="#app-preview">See the app preview <span aria-hidden="true">↘</span></a>
+      </nav>
+      <div class="site-header__actions">
+        <a class="button button--small button--header" href="#app-preview">See the app <span aria-hidden="true">↘</span></a>
+        <button class="menu-toggle" type="button" aria-label="Open menu" aria-controls="primary-nav" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero section-shell" id="top">
+      <div class="container hero__grid">
+        <div class="hero__content">
+          <div class="eyebrow"><span class="eyebrow__pulse" aria-hidden="true"></span> The responsive QA workspace <span class="eyebrow__tail">/ product preview</span></div>
+          <h1>One canvas.<br><span class="text-gradient">Every breakpoint.</span><br>Better answers.</h1>
+          <p class="hero__lead">See the same site across device-sized browser screens. Inspect what changed, run trusted Playwright specs on visible viewports, and ask an AI agent to investigate the page—all without losing your place.</p>
+          <div class="hero__actions">
+            <a class="button button--primary" href="#app-preview">See the app preview <span aria-hidden="true">↓</span></a>
+            <a class="button button--outline" href="#capabilities">Explore capabilities <span aria-hidden="true">↓</span></a>
+          </div>
+          <p class="hero__footnote"><span class="dot dot--amber" aria-hidden="true"></span> Product showcase. Public installers are not available yet.</p>
+        </div>
+
+        <div class="product-demo" id="app-preview" aria-label="Illustrated Humshakals workspace preview">
+          <div class="product-demo__topline">
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="product-demo__brand"><img src="logo.png" alt="" width="18" height="18"> Humshakals <span>WORKSPACE</span></div>
+            <div class="product-demo__status"><span class="dot dot--green" aria-hidden="true"></span> Local session</div>
+          </div>
+          <div class="product-demo__toolbar">
+            <span class="toolbar-arrows" aria-hidden="true">← &nbsp; → &nbsp; ↻</span>
+            <div class="demo-url"><span class="demo-url__lock" aria-hidden="true">⌁</span> https://your-staging-site.dev</div>
+            <span class="demo-url__go">Go ↗</span>
+          </div>
+          <div class="demo-tabs" role="tablist" aria-label="Workspace preview modes">
+            <button type="button" id="demo-tab-compare" class="demo-tab" role="tab" aria-controls="demo-panel-compare" aria-selected="true" tabindex="0" data-demo-tab="compare">01 <span>Compare</span></button>
+            <button type="button" id="demo-tab-automate" class="demo-tab" role="tab" aria-controls="demo-panel-automate" aria-selected="false" tabindex="-1" data-demo-tab="automate">02 <span>Automate</span></button>
+            <button type="button" id="demo-tab-agent" class="demo-tab" role="tab" aria-controls="demo-panel-agent" aria-selected="false" tabindex="-1" data-demo-tab="agent">03 <span>Ask AI</span></button>
+          </div>
+          <div class="product-demo__body">
+            <div class="demo-panel" id="demo-panel-compare" role="tabpanel" aria-labelledby="demo-tab-compare">
+              <div class="demo-panel__meta"><span><span class="dot dot--green" aria-hidden="true"></span> 3 screens in sync</span><span>Layout: Product QA</span></div>
+              <div class="preview-grid">
+                <div class="preview-device preview-device--phone">
+                  <div class="preview-device__label">iPhone <span>390 × 690</span></div>
+                  <div class="preview-phone preview-phone--ios"><div class="preview-phone__island"></div><div class="preview-phone__bar">9:41 <span>◖◖ ▰</span></div><div class="preview-site"><div class="preview-site__nav"><b>forma.</b><span>☰</span></div><div class="preview-site__hero"><small>NEW COLLECTION</small><strong>Make room<br>for ideas.</strong><span>Explore now ↗</span></div><div class="preview-site__tiles"><i></i><i></i></div></div><div class="preview-phone__home"></div></div>
+                </div>
+                <div class="preview-device preview-device--phone">
+                  <div class="preview-device__label">Galaxy <span>360 × 740</span></div>
+                  <div class="preview-phone preview-phone--android"><div class="preview-phone__camera"></div><div class="preview-phone__bar">9:41 <span>◖◖ ▰</span></div><div class="preview-site"><div class="preview-site__nav"><b>forma.</b><span>☰</span></div><div class="preview-site__hero"><small>NEW COLLECTION</small><strong>Make room<br>for ideas.</strong><span>Explore now ↗</span></div><div class="preview-site__tiles"><i></i><i></i></div></div><div class="preview-phone__android-bar"></div></div>
+                </div>
+                <div class="preview-device preview-device--desktop">
+                  <div class="preview-device__label">Desktop <span>1440 × 900</span></div>
+                  <div class="preview-desktop"><div class="preview-desktop__chrome"><span>◉ &nbsp; forma. — Home</span><span>— □ ×</span></div><div class="preview-desktop__site"><div class="preview-site__nav"><b>forma.</b><span>Collections &nbsp; Stories &nbsp; About</span></div><div class="preview-site__hero"><small>NEW COLLECTION / 2026</small><strong>Make room<br>for ideas.</strong><span>Explore collection ↗</span></div><div class="preview-site__tiles"><i></i><i></i><i></i></div></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="demo-panel" id="demo-panel-automate" role="tabpanel" aria-labelledby="demo-tab-automate" hidden>
+              <div class="demo-panel__meta"><span><span class="dot dot--violet" aria-hidden="true"></span> Playwright Automation Lab</span><span>Visible screen matrix</span></div>
+              <div class="automation-demo">
+                <div class="automation-demo__source"><span class="mini-label">TRUSTED REPOSITORY</span><strong>team/website-tests</strong><small>checkout · selected specs · current layout</small><div class="source-line"><span class="source-line__branch">⑂</span> main <span class="source-line__hash">a83f2c9</span></div></div>
+                <div class="automation-demo__results"><span class="mini-label">RUN / 003</span><div><span>iPhone viewport</span><b>✓ Passed</b></div><div><span>Galaxy viewport</span><b>✓ Passed</b></div><div><span>Desktop viewport</span><b>✓ Passed</b></div><small>Report · network · screenshots · timeline</small></div>
+              </div>
+              <div class="demo-code"><span class="code-purple">test</span>(<span class="code-green">'checkout stays usable'</span>, <span class="code-purple">async</span> ({ page }) =&gt; {<br>&nbsp;&nbsp;<span class="code-purple">await</span> page.getByRole(<span class="code-green">'button'</span>, { name: <span class="code-green">'Continue'</span> }).click()<br>})</div>
+            </div>
+            <div class="demo-panel" id="demo-panel-agent" role="tabpanel" aria-labelledby="demo-tab-agent" hidden>
+              <div class="demo-panel__meta"><span><span class="dot dot--violet" aria-hidden="true"></span> Browser Agent</span><span>Selected screens: 2</span></div>
+              <div class="agent-demo"><div class="agent-demo__page"><div class="agent-demo__page-bar">iPhone SE · 375 × 585</div><div class="agent-demo__page-art"><span>forma.</span><strong>Make room<br>for ideas.</strong><i></i><i></i></div><span class="agent-demo__cursor">↖</span></div><div class="agent-demo__chat"><div class="agent-demo__chat-title"><span class="agent-sparkle">✦</span> Browser Agent <span class="agent-demo__chip">INSPECTING</span></div><div class="agent-demo__bubble agent-demo__bubble--you">Check this layout on both phones.</div><div class="agent-demo__bubble agent-demo__bubble--ai">The narrow viewport wraps the CTA. I can compare the button position on both screens and capture evidence.</div><div class="agent-demo__composer">Ask about this page <span>↑</span></div></div></div>
+            </div>
+          </div>
+          <div class="product-demo__footer"><span>Illustrative interface · not a live device session</span><span>Humshakals preview</span></div>
+        </div>
+      </div>
+      <div class="container hero__metrics" aria-label="Product highlights">
+        <div><b>20+</b><span>device presets</span></div><div><b>1</b><span>shared URL</span></div><div><b>3</b><span>screen classes*</span></div><div><b>Local</b><span>evidence workspace</span></div>
+        <p>* Chromium webviews for layout simulations; real Android Chrome only when connected. iPhone frames are not iOS Safari.</p>
+      </div>
+    </section>
+
+    <section class="section section--intro" id="workspace">
+      <div class="container">
+        <div class="section-heading"><p class="section-kicker">THE WORKSPACE</p><h2>More than a grid of screenshots.</h2><p>Humshakals puts browser behavior, test execution and evidence beside the layouts you are comparing.</p></div>
+        <div class="loop-grid">
+          <article class="loop-step"><span class="loop-step__number">01 / OPEN</span><h3>Load once. Compare everywhere.</h3><p>A shared address bar opens the same URL across active screens. Each viewport keeps its own scroll and interaction state.</p><span class="loop-step__icon" aria-hidden="true">↗</span></article>
+          <article class="loop-step"><span class="loop-step__number">02 / EXPLORE</span><h3>Touch the actual page.</h3><p>Rotate devices, switch mobile browser chrome, inspect breakpoints, and capture screenshots with the visible content size in view.</p><span class="loop-step__icon" aria-hidden="true">↻</span></article>
+          <article class="loop-step"><span class="loop-step__number">03 / VERIFY</span><h3>Turn a hunch into evidence.</h3><p>Run selected Playwright specs or ask the Browser Agent to inspect selected screens. Keep the report, timeline and network trail.</p><span class="loop-step__icon" aria-hidden="true">✓</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="capabilities">
+      <div class="container">
+        <div class="section-heading section-heading--split"><div><p class="section-kicker">BUILT FOR THE DETAILS</p><h2>All the hard parts,<br><span class="text-gradient">in one place.</span></h2></div><p>Move from first visual check to reproducible QA without jumping between a dozen disconnected tools.</p></div>
+        <div class="feature-grid">
+          <article class="feature-card feature-card--violet feature-card--wide"><div class="feature-card__top"><span class="feature-card__icon" aria-hidden="true">◫</span><span class="feature-card__index">01 / DEVICE LAB</span></div><h3>Device-sized viewports with browser context.</h3><p>See the page alongside simulated iOS, Android, Windows or macOS chrome. Toggle orientation, keyboard and supported browser bar layouts while keeping the effective page viewport visible.</p><div class="feature-pills"><span>Rotation</span><span>Browser chrome</span><span>Actual content size</span></div><div class="feature-card__art feature-card__art--devices" aria-hidden="true"><i></i><i></i><i></i></div></article>
+          <article class="feature-card feature-card--blue"><div class="feature-card__top"><span class="feature-card__icon" aria-hidden="true">⌘</span><span class="feature-card__index">02 / AUTOMATION</span></div><h3>Playwright, in the visible layout.</h3><p>Import a trusted Git test repository, choose specs, run them on selected Humshakals screens and supported connected Android Chrome devices, then open the report.</p><div class="feature-card__bottom">Git → specs → viewport matrix → report <span aria-hidden="true">↗</span></div></article>
+          <article class="feature-card feature-card--dark"><div class="feature-card__top"><span class="feature-card__icon" aria-hidden="true">✦</span><span class="feature-card__index">03 / BROWSER AGENT</span></div><h3>Ask the Browser Agent.</h3><p>Inspect selected screens, approve page actions, and extend investigations with QA skills or MCP tools.</p></article>
+          <article class="feature-card"><div class="feature-card__top"><span class="feature-card__icon" aria-hidden="true">◎</span><span class="feature-card__index">04 / EVIDENCE</span></div><h3>Keep the context.</h3><p>Capture screenshots, console and network signals, test steps and a visual filmstrip. Export reports developers can actually follow.</p></article>
+          <article class="feature-card"><div class="feature-card__top"><span class="feature-card__icon" aria-hidden="true">⌁</span><span class="feature-card__index">05 / NETWORK</span></div><h3>Test the tricky environments.</h3><p>Use protected staging URLs, per-screen DevTools and optional SOCKS5/HTTP proxy profiles. OS secure storage is required for new saved secrets.</p></article>
+          <article class="feature-card"><div class="feature-card__top"><span class="feature-card__icon" aria-hidden="true">▣</span><span class="feature-card__index">06 / LAYOUTS</span></div><h3>Make a setup yours.</h3><p>Save device templates and reopen familiar QA layouts. Compare phones, tablets and desktop profiles on the same canvas.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--workflow" id="workflow">
+      <div class="container workflow-grid">
+        <div class="workflow-copy"><p class="section-kicker">FROM QUESTION TO ANSWER</p><h2>Your test flow,<br>finally connected.</h2><p>Everything stays anchored to the screen you are looking at. Import only code you trust, choose the exact devices, and keep the output local for review.</p></div>
+        <div class="workflow-board">
+          <div class="workflow-board__header"><span><i></i> QA SESSION / PRODUCT PAGE</span><span>LOCAL WORKSPACE</span></div>
+          <ol>
+            <li><span>01</span><div><strong>Open your staging URL</strong><small>One URL across selected profiles</small></div><b>READY</b></li>
+            <li><span>02</span><div><strong>Find the breakpoint</strong><small>Inspect mobile and desktop side by side</small></div><b>VISIBLE</b></li>
+            <li><span>03</span><div><strong>Run tests or ask AI</strong><small>Explicit targets and approvals</small></div><b>OPTIONAL</b></li>
+            <li><span>04</span><div><strong>Share reproducible evidence</strong><small>Timeline, reports and captures</small></div><b>EXPORT</b></li>
+          </ol>
+          <div class="workflow-board__footer"><span class="dot dot--green" aria-hidden="true"></span> You stay in control of every step</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="reality">
+      <div class="container">
+        <div class="section-heading"><p class="section-kicker">HONEST BY DESIGN</p><h2>Beautiful previews.<br>Clear boundaries.</h2><p>A realistic frame is useful for QA—but it is not a physical operating system.</p></div>
+        <div class="reality-grid">
+          <div class="reality-card reality-card--yes"><span class="reality-card__tag">WHAT IT DOES</span><h3>See and test responsive behavior fast.</h3><ul><li>Chromium webviews sized to configured content viewports</li><li>Device-like browser chrome, rotation and keyboard simulation</li><li>Playwright against visible screens and supported Android Chrome</li><li>Optional agent inspection with bounded actions</li></ul></div>
+          <div class="reality-card reality-card--no"><span class="reality-card__tag">WHAT IT DOES NOT CLAIM</span><h3>It does not turn a laptop into an iPhone.</h3><ul><li>iPhone frames are not native iOS Safari sessions</li><li>Simulated UI cannot reproduce every OS-only bug</li><li>Imported Git, npm and MCP code is not sandboxed</li><li>Real-device sign-off still needs real hardware</li></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--security" id="security">
+      <div class="container security-panel"><div class="security-panel__icon" aria-hidden="true">◇</div><div><p class="section-kicker">CONTROLLED, NOT MYSTERIOUS</p><h2>Know what runs. Know what leaves.</h2><p>Sites stay in isolated webviews. Git tests and MCP servers require trust because they execute as your OS user. AI requests may include page evidence sent to the chosen provider. New saved API/VPN secrets require OS-backed encryption; private evidence stays local until you export it.</p></div></div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="container faq-grid"><div><p class="section-kicker">GOOD QUESTIONS</p><h2>Before you dive in.</h2><p class="faq-grid__intro">The practical answers behind the polished frame.</p></div><div class="faq-list">
+        <details><summary>Can Humshakals run real iOS or Android?<span class="faq-toggle" aria-hidden="true"></span></summary><p>Its built-in phone frames are browser-engine simulations, not iOS or Android OS sessions. Supported physical Android devices can be connected for real Chrome automation. iOS-specific issues still need an iPhone or a separately configured native device runner.</p></details>
+        <details><summary>Will my existing Playwright tests open a separate browser?<span class="faq-toggle" aria-hidden="true"></span></summary><p>The Automation Lab runs selected layout targets against visible Humshakals webviews, with their effective viewports. A trusted imported repository can bring its own dependencies and configuration; review them before execution. Supported connected Android devices run in real Chrome.</p></details>
+        <details><summary>Does the Browser Agent automatically get every permission?<span class="faq-toggle" aria-hidden="true"></span></summary><p>No. Choose its target screens and provider. Browser actions are bounded, and external MCP tools require separate connection and per-call approval. Never connect an untrusted server or send private staging content to a provider without checking your policy.</p></details>
+        <details><summary>Can I download a production-ready installer today?<span class="faq-toggle" aria-hidden="true"></span></summary><p>Not yet. Public installers will follow signing, dependency scanning and packaged-platform QA. This page showcases the app while those release checks are completed.</p></details>
+      </div></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer"><div class="container site-footer__main"><div><a class="brand brand--footer" href="#top"><img src="logo.png" alt="" width="34" height="34"> <span>Humshakals</span></a><p>Developed &amp; engineered by <strong>Mayur Dattatray Patil</strong>.</p><span class="site-footer__runtime">A local desktop workspace for the details that matter.</span></div><div class="site-footer__links"><div><strong>Product</strong><a href="#workspace">Workspace</a><a href="#capabilities">Capabilities</a><a href="#reality">Limitations</a></div><div><strong>Connect</strong><a href="https://github.com/iMayuuR" target="_blank" rel="noopener noreferrer">GitHub profile ↗</a><a href="https://www.instagram.com/MayurXplorer/" target="_blank" rel="noopener noreferrer">Instagram ↗</a></div></div></div><div class="container site-footer__bottom"><span>© <span id="current-year">2026</span> Humshakals</span><span>Product preview</span><a href="#top">Back to top ↑</a></div></footer>
+</body>
+</html>
