@@ -48,14 +48,14 @@
     <section class="hero section-shell" id="top">
       <div class="container hero__grid">
         <div class="hero__content">
-          <div class="eyebrow"><span class="eyebrow__pulse" aria-hidden="true"></span> The responsive QA workspace <span class="eyebrow__tail">/ unsigned manual build</span></div>
+          <div class="eyebrow"><span class="eyebrow__pulse" aria-hidden="true"></span> The responsive QA workspace <span class="eyebrow__tail">/ latest public release</span></div>
           <h1>One canvas.<br><span class="text-gradient">Every breakpoint.</span><br>Better answers.</h1>
           <p class="hero__lead">See the same site across device-sized browser screens. Inspect what changed, run trusted Playwright specs on visible viewports, and ask an AI agent to investigate the page—all without losing your place.</p>
           <div class="hero__actions">
-            <a class="button button--primary" href="https://github.com/iMayuuR/humshakals/releases/tag/v3.8.9">Get v3.8.9 <span aria-hidden="true">↗</span></a>
-            <a class="button button--outline" href="#install">First-time install <span aria-hidden="true">↓</span></a>
+            <a class="button button--primary" data-release-asset="windows" href="https://github.com/iMayuuR/humshakals/releases/latest"><span data-download-label>Get for Windows</span> <span aria-hidden="true">↗</span></a>
+            <a class="button button--outline" data-release-asset="mac" href="https://github.com/iMayuuR/humshakals/releases/latest"><span data-download-label>Get for macOS</span> <span aria-hidden="true">↗</span></a>
           </div>
-          <p class="hero__footnote"><span class="dot dot--amber" aria-hidden="true"></span> Manual install only. This build is unsigned and unnotarized; your OS may block it.</p>
+          <p class="hero__footnote"><span class="dot dot--amber" aria-hidden="true"></span> <span data-release-status>Latest installers are listed on GitHub Releases.</span> <a href="#install">First-time install guide ↓</a></p>
         </div>
 
         <div class="product-demo" id="app-preview" aria-label="Illustrated Humshakals workspace preview">
@@ -116,32 +116,32 @@
 
     <section class="section section--install" id="install" aria-labelledby="install-title">
       <div class="container">
-        <div class="section-heading section-heading--split"><div><p class="section-kicker">FIRST-TIME INSTALL / V3.8.9</p><h2 id="install-title">Download with confidence.<br><span class="text-gradient">Know the warning.</span></h2></div><p>This build is unsigned on Windows and unnotarized on macOS. These steps explain the first launch without asking you to switch off system-wide protection.</p></div>
-        <div class="install-note"><span class="install-note__mark" aria-hidden="true">!</span><div><strong>Before either installer: verify the file.</strong><p>Download only from the official release, then compare your file’s SHA-256 with <a href="https://github.com/iMayuuR/humshakals/releases/download/v3.8.9/SHA256SUMS.txt">SHA256SUMS.txt</a>. A matching hash confirms the file matches this release; it does not certify the publisher or prove the app is safe.</p></div><a class="install-note__link" href="https://github.com/iMayuuR/humshakals/releases/tag/v3.8.9">View release <span aria-hidden="true">↗</span></a></div>
+        <div class="section-heading section-heading--split"><div><p class="section-kicker" data-release-kicker>FIRST-TIME INSTALL / LATEST RELEASE</p><h2 id="install-title">Download with confidence.<br><span class="text-gradient">Know the warning.</span></h2></div><p>The current manual release may trigger Windows SmartScreen or macOS Gatekeeper. Check its release notes and signature before following any warning-specific steps; do not switch off system-wide protection.</p></div>
+        <div class="install-note"><span class="install-note__mark" aria-hidden="true">!</span><div><strong>Before either installer: verify the file.</strong><p>Download only from the official release, then compare your file’s SHA-256 with <a data-release-asset="checksum" href="https://github.com/iMayuuR/humshakals/releases/latest">SHA256SUMS.txt</a>. A matching hash confirms the file matches this release; it does not certify the publisher or prove the app is safe.</p></div><a class="install-note__link" href="https://github.com/iMayuuR/humshakals/releases/latest">View latest release <span aria-hidden="true">↗</span></a></div>
         <div class="install-grid">
           <article class="install-card install-card--windows" aria-labelledby="install-windows-title">
-            <div class="install-card__head"><span class="install-card__platform">WIN <span aria-hidden="true">⊞</span></span><span class="install-card__state">Unsigned installer</span></div>
+            <div class="install-card__head"><span class="install-card__platform">WIN <span aria-hidden="true">⊞</span></span><span class="install-card__state">Check release signature</span></div>
             <h3 id="install-windows-title">Windows 11</h3>
             <ol class="install-steps">
-              <li><strong>Download and check.</strong><p>Save <code>Humshakals-Setup-3.8.9.exe</code>. In PowerShell, run the command below and compare its SHA-256 result with the checksum file.</p><pre class="install-command"><code>Get-FileHash "$env:USERPROFILE\Downloads\Humshakals-Setup-3.8.9.exe" -Algorithm SHA256</code></pre></li>
-              <li><strong>Open the installer.</strong><p>If the blue “Windows protected your PC” SmartScreen dialog appears, choose <strong>More info → Run anyway</strong> only if you accept this unsigned build and the hash matches. Then complete the installer wizard.</p></li>
+              <li><strong>Download and check.</strong><p>Save <code data-release-file="windows">the latest Windows .exe</code>. In PowerShell, run the command below with the actual filename and compare its SHA-256 result with the checksum file.</p><pre class="install-command"><code data-release-command="windows">Get-FileHash "C:\path\to\downloaded-setup.exe" -Algorithm SHA256</code></pre></li>
+              <li><strong>Open the installer.</strong><p>If the blue “Windows protected your PC” SmartScreen dialog appears, choose <strong>More info → Run anyway</strong> only if you trust this release and the hash matches. Then complete the installer wizard.</p></li>
               <li><strong>Know when to stop.</strong><p>If Defender reports malware, Smart App Control blocks the app, or your organisation’s policy forbids it, stop—“Run anyway” may not be available. Do not turn off Windows Security globally.</p></li>
             </ol>
-            <a class="button button--outline install-card__download" href="https://github.com/iMayuuR/humshakals/releases/download/v3.8.9/Humshakals-Setup-3.8.9.exe">Download Windows setup <span aria-hidden="true">↗</span></a>
+            <a class="button button--outline install-card__download" data-release-asset="windows" href="https://github.com/iMayuuR/humshakals/releases/latest"><span data-download-label>Windows setup on GitHub</span> <span aria-hidden="true">↗</span></a>
           </article>
           <article class="install-card install-card--mac" aria-labelledby="install-mac-title">
-            <div class="install-card__head"><span class="install-card__platform">MAC <span aria-hidden="true">⌘</span></span><span class="install-card__state">Unnotarized app</span></div>
+            <div class="install-card__head"><span class="install-card__platform">MAC <span aria-hidden="true">⌘</span></span><span class="install-card__state">Check release signature</span></div>
             <h3 id="install-mac-title">macOS</h3>
             <ol class="install-steps">
-              <li><strong>Download and check.</strong><p>Save the universal <code>.dmg</code>. In Terminal, run the command below and compare its SHA-256 result with the checksum file.</p><pre class="install-command"><code>shasum -a 256 ~/Downloads/Humshakals-3.8.9-universal.dmg</code></pre></li>
+              <li><strong>Download and check.</strong><p>Save <code data-release-file="mac">the latest universal .dmg</code>. In Terminal, run the command below with the actual filename and compare its SHA-256 result with the checksum file.</p><pre class="install-command"><code data-release-command="mac">shasum -a 256 ~/Downloads/your-downloaded-file.dmg</code></pre></li>
               <li><strong>Move and open.</strong><p>Open the disk image, drag Humshakals into Applications, then try to open the app once.</p></li>
               <li><strong>Approve this app only.</strong><p>For an unidentified-developer or “Apple cannot check” warning, go to <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>, then confirm <strong>Open</strong>. The button appears after the first launch attempt.</p></li>
             </ol>
             <details class="install-advanced"><summary>Terminal fallback for a verified app <span aria-hidden="true">⌄</span></summary><p>Only if Open Anyway is unavailable, you verified the official download, and the warning is about an unidentified developer: the command below removes quarantine from <em>this app only</em>. It bypasses a macOS security check. Do not use it for “will damage your computer”, malware, or damaged/corrupt-file alerts; re-download and investigate those instead.</p><pre class="install-command"><code>xattr -dr com.apple.quarantine "/Applications/Humshakals.app"</code></pre><p>Do not use <code>sudo</code> or disable Gatekeeper globally. If permissions or device management block this step, ask your administrator.</p></details>
-            <a class="button button--outline install-card__download" href="https://github.com/iMayuuR/humshakals/releases/download/v3.8.9/Humshakals-3.8.9-universal.dmg">Download macOS DMG <span aria-hidden="true">↗</span></a>
+            <a class="button button--outline install-card__download" data-release-asset="mac" href="https://github.com/iMayuuR/humshakals/releases/latest"><span data-download-label>macOS DMG on GitHub</span> <span aria-hidden="true">↗</span></a>
           </article>
         </div>
-        <p class="install-sources">Platform guidance: <a href="https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/publish-first-app" target="_blank" rel="noopener noreferrer">Microsoft SmartScreen ↗</a> · <a href="https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions" target="_blank" rel="noopener noreferrer">Smart App Control ↗</a> · <a href="https://support.apple.com/en-lamr/102445" target="_blank" rel="noopener noreferrer">Apple: safely open apps ↗</a>. Some managed devices will not permit an override. Packaged-platform QA for this release is incomplete.</p>
+        <p class="install-sources">Platform guidance: <a href="https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/publish-first-app" target="_blank" rel="noopener noreferrer">Microsoft SmartScreen ↗</a> · <a href="https://support.microsoft.com/en-us/windows/security/threat-malware-protection/smart-app-control-frequently-asked-questions" target="_blank" rel="noopener noreferrer">Smart App Control ↗</a> · <a href="https://support.apple.com/en-lamr/102445" target="_blank" rel="noopener noreferrer">Apple: safely open apps ↗</a>. Some managed devices will not permit an override. Check the latest release notes for packaged-platform QA status.</p>
       </div>
     </section>
 
@@ -205,7 +205,7 @@
         <details><summary>Can Humshakals run real iOS or Android?<span class="faq-toggle" aria-hidden="true"></span></summary><p>Its built-in phone frames are browser-engine simulations, not iOS or Android OS sessions. Supported physical Android devices can be connected for real Chrome automation. iOS-specific issues still need an iPhone or a separately configured native device runner.</p></details>
         <details><summary>Will my existing Playwright tests open a separate browser?<span class="faq-toggle" aria-hidden="true"></span></summary><p>The Automation Lab runs selected layout targets against visible Humshakals webviews, with their effective viewports. A trusted imported repository can bring its own dependencies and configuration; review them before execution. Supported connected Android devices run in real Chrome.</p></details>
         <details><summary>Does the Browser Agent automatically get every permission?<span class="faq-toggle" aria-hidden="true"></span></summary><p>No. Choose its target screens and provider. Browser actions are bounded, and external MCP tools require separate connection and per-call approval. Never connect an untrusted server or send private staging content to a provider without checking your policy.</p></details>
-        <details><summary>Can I download a production-ready installer today?<span class="faq-toggle" aria-hidden="true"></span></summary><p><a href="https://github.com/iMayuuR/humshakals/releases/tag/v3.8.9">v3.8.9</a> is available for manual download, but it is <strong>not</strong> a signed or production-certified installer. Windows SmartScreen and macOS Gatekeeper may warn or block it, and packaged Windows/macOS QA is incomplete. Start with the <a href="#install">first-time install guide</a>; do not disable OS protections globally. Signed installers remain a future release goal.</p></details>
+        <details><summary>Can I download a production-ready installer today?<span class="faq-toggle" aria-hidden="true"></span></summary><p><a href="https://github.com/iMayuuR/humshakals/releases/latest">The latest public release</a> is available for manual download. Check its release notes for signature, notarization and QA status before installing. The v3.8.9 build was unsigned and not production-certified; Windows SmartScreen and macOS Gatekeeper may warn or block unsigned builds. Start with the <a href="#install">first-time install guide</a>; do not disable OS protections globally.</p></details>
       </div></div>
     </section>
 
