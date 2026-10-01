@@ -8,4 +8,6 @@ The current `v3.8.9` release is an explicitly **unsigned, unnotarized manual-ins
 
 The private signed-release pipeline remains separate and requires Windows/macOS signing, Apple notarization and packaged QA. The public publishing workflow verifies uploaded asset hashes and updater metadata; those checks do **not** turn an unsigned installer into a signed one. Future production-ready installers remain pending signing and packaged-platform QA. Do not disable operating-system security protections globally to run this build.
 
+First time installing? The [Windows/macOS guide](https://imayuur.github.io/humshakals/#install) covers checksum verification, SmartScreen and macOS first-launch prompts. It also explains when to stop rather than override a security block.
+
 Developed & engineered by Mayur Dattatray Patil · [GitHub](https://github.com/iMayuuR) · [@MayurXplorer](https://www.instagram.com/MayurXplorer/)

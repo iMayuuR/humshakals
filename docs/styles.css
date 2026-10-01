@@ -181,6 +181,41 @@ a:hover { color: #d1e6ff; }
 .agent-demo__composer span { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 4px; color: #fff; background: #805ee8; font-size: 14px; }
 
 /* Content sections */
+.section--install { padding-block: clamp(76px, 8vw, 126px); background: linear-gradient(180deg, rgba(19, 26, 43, .6), rgba(11, 16, 29, .78)); border-bottom: 1px solid var(--line); }
+.section--install .section-heading { margin-bottom: 30px; }
+.install-note { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; align-items: center; gap: 16px; padding: 22px 25px; border: 1px solid rgba(248, 196, 121, .3); border-radius: 15px; background: rgba(248, 196, 121, .07); }
+.install-note__mark { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid rgba(248, 196, 121, .42); border-radius: 50%; color: var(--amber); font: 700 17px var(--display); }
+.install-note strong { color: #f8e3bf; font-size: 14px; }
+.install-note p { max-width: 850px; margin: 3px 0 0; color: #c6bcae; font-size: 13px; line-height: 1.65; }
+.install-note p a, .install-sources a { color: #b7ceff; text-decoration: underline; text-underline-offset: 3px; }
+.install-note__link { color: #f4d4a5; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.install-note__link span { margin-left: 4px; }
+.install-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin-top: 17px; }
+.install-card { display: flex; flex-direction: column; min-width: 0; padding: clamp(24px, 2.8vw, 38px); border: 1px solid var(--line); border-radius: 17px; background: linear-gradient(145deg, #17253b, #111724 72%); }
+.install-card--mac { background: linear-gradient(145deg, #24203d, #141724 72%); }
+.install-card__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.install-card__platform { display: inline-flex; align-items: center; gap: 10px; color: #c2d9ff; font: 700 10px var(--mono); letter-spacing: .14em; }
+.install-card__platform span { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid rgba(154, 189, 255, .24); border-radius: 9px; color: #d4e5ff; background: rgba(111, 156, 240, .14); font-size: 21px; line-height: 1; }
+.install-card--mac .install-card__platform span { border-color: rgba(181, 164, 255, .28); color: #d9caff; background: rgba(161, 128, 244, .15); }
+.install-card__state { color: #95a4bb; font: 500 10px var(--mono); text-align: right; }
+.install-card h3 { margin: 24px 0 15px; font: 600 clamp(27px, 2.2vw, 37px)/1.12 var(--display); letter-spacing: -.055em; }
+.install-steps { display: grid; gap: 22px; margin: 0 0 29px; padding: 0; list-style: none; counter-reset: install-step; }
+.install-steps li { position: relative; min-width: 0; padding-left: 43px; counter-increment: install-step; }
+.install-steps li::before { position: absolute; top: 0; left: 0; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #657dab; border-radius: 50%; color: #bfcefa; content: counter(install-step, decimal-leading-zero); font: 600 9px var(--mono); }
+.install-steps strong { color: #ecf2ff; font-size: 14px; }
+.install-steps p, .install-advanced p { margin: 5px 0 0; color: #aebbd0; font-size: 13px; line-height: 1.7; }
+.install-steps p strong { color: #d9e5ff; font-size: inherit; }
+.install-steps p code, .install-advanced p code { color: #cbdcff; font: 500 11px var(--mono); overflow-wrap: anywhere; }
+.install-command { max-width: 100%; margin: 12px 0 0; padding: 12px 13px; border: 1px solid rgba(166, 186, 226, .2); border-radius: 9px; background: #0b1220; color: #cde3ff; font: 500 11px/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.install-command code { font: inherit; }
+.install-advanced { margin: 0 0 22px; padding: 17px 0 0; border-top: 1px solid var(--line); }
+.install-advanced summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #c8b8ff; font-size: 13px; font-weight: 700; cursor: pointer; list-style: none; }
+.install-advanced summary::-webkit-details-marker { display: none; }
+.install-advanced summary span { transition: transform .2s ease; }
+.install-advanced[open] summary span { transform: rotate(180deg); }
+.install-advanced p:last-child { margin-top: 10px; }
+.install-card__download { width: fit-content; margin-top: auto; }
+.install-sources { margin: 19px 0 0; color: #8b9ab0; font-size: 12px; line-height: 1.7; }
 .section--intro { padding-top: clamp(88px, 10vw, 160px); }
 .section-heading { max-width: 760px; margin-bottom: clamp(35px, 4vw, 62px); }
 .section-heading h2, .workflow-copy h2, .faq-grid h2, .security-panel h2 { margin: 0; font: 600 clamp(36px, 4vw, 66px)/1.06 var(--display); letter-spacing: -.067em; }
@@ -310,6 +345,8 @@ a:hover { color: #d1e6ff; }
   .site-nav a { padding: 11px 6px; font-size: 15px; }
   .site-nav__mobile-cta { display: block; margin-top: 6px; border-top: 1px solid var(--line); color: #c5b8ff !important; }
   .workflow-grid, .faq-grid { grid-template-columns: 1fr; gap: 42px; }
+  .install-note { grid-template-columns: 36px minmax(0, 1fr); }
+  .install-note__link { grid-column: 2; }
   .workflow-copy { max-width: 660px; }
   .site-footer__main { flex-direction: column; gap: 40px; }
 }
@@ -322,6 +359,7 @@ a:hover { color: #d1e6ff; }
   .section-heading--split { display: block; }
   .section-heading--split > p:last-child { max-width: 570px; margin-top: 18px; }
   .loop-grid { grid-template-columns: 1fr; }
+  .install-grid { grid-template-columns: 1fr; }
   .loop-step { min-height: 210px; }
   .loop-step h3 { margin-top: 26px; }
   .feature-card, .feature-card--wide, .feature-card--blue, .feature-card--dark { grid-column: span 12; min-height: 255px; }
@@ -341,6 +379,10 @@ a:hover { color: #d1e6ff; }
   .hero__lead { margin-top: 23px; font-size: 16px; }
   .hero__actions { align-items: stretch; }
   .hero__actions .button { width: 100%; }
+  .install-note { grid-template-columns: 1fr; padding: 20px; }
+  .install-note__link { grid-column: 1; }
+  .install-card { padding: 23px 20px; }
+  .install-card__download { width: 100%; }
   .eyebrow { margin-bottom: 25px; }
   .product-demo__topline { grid-template-columns: auto 1fr; }
   .product-demo__brand { justify-self: end; }
