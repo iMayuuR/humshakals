@@ -43,8 +43,6 @@ function renderLatestReleaseAssets(release) {
     const file = document.querySelector(`[data-release-file="${kind}"]`);
     if (file) file.textContent = assets[kind].name;
   }
-  const macCommand = document.querySelector('[data-release-command="mac"]');
-  if (macCommand) macCommand.textContent = `shasum -a 256 ~/Downloads/${assets.mac.name}`;
   document.querySelectorAll('[data-release-status]').forEach(node => {
     node.textContent = `${tag} · direct installers ready. Check the release notes before installing.`;
   });
@@ -68,8 +66,6 @@ function renderLatestReleaseFallback() {
     const file = document.querySelector(`[data-release-file="${kind}"]`);
     if (file) file.textContent = name;
   }
-  const macCommand = document.querySelector('[data-release-command="mac"]');
-  if (macCommand) macCommand.textContent = 'shasum -a 256 ~/Downloads/your-downloaded-file.dmg';
   document.querySelectorAll('[data-release-status]').forEach(node => {
     node.textContent = 'Direct links unavailable right now; choose your installer on the latest GitHub release.';
   });
