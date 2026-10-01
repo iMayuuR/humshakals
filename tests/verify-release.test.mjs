@@ -55,5 +55,11 @@ test('rejects tampered manifest, missing assets and wrong updater version', () =
   assert.throws(() => verifyRelease(missing), /exactly 9/)
   const wrongVersion = fixture()
   wrongVersion.winMetadata = 'version: 9.0.1\npath: Humshakals-Setup-9.0.0.exe\n'
-  assert.throws(() => verifyRelease(wrongVersion), /metadata mismatch/)
+  wrongVersion.release.assets.find((asset) => asset.name === 'latest.yml').digest = `sha256:${hash(wrongVersion.winMetadata)}`
+  wrongVersion.manifest = wrongVersion.manifest.replace(
+    /^([a-f0-9]{64})  latest\.yml$/m,
+    `${hash(wrongVersion.winMetadata)}  latest.yml`
+  )
+  wrongVersion.release.assets.find((asset) => asset.name === 'SHA256SUMS.txt').digest = `sha256:${hash(wrongVersion.manifest)}`
+  assert.throws(() => verifyRelease(wrongVersion), /Wrong updater version/)
 })
