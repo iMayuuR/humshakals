@@ -1,0 +1,58 @@
+name: Publish verified desktop release
+
+on:
+  repository_dispatch:
+    types: [humshakals_release_ready]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing public draft tag to verify and publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: public-release-${{ github.event.client_payload.tag || inputs.tag || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'iMayuuR/humshakals'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out public release policy only
+        uses: actions/checkout@v6
+
+      - name: Test the release verifier
+        run: node --test tests/verify-release.test.mjs
+
+      - name: Verify draft and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_TAG: ${{ github.event.client_payload.tag || inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="$REQUESTED_TAG"
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo '::error::Expected a stable vX.Y.Z tag.'; exit 1; }
+
+          # The public tag must refer only to public landing/release infrastructure.
+          git fetch --no-tags origin "refs/tags/$TAG:refs/tags/$TAG"
+          git merge-base --is-ancestor "$TAG^{commit}" HEAD || { echo '::error::Public release tag is not on public master history.'; exit 1; }
+          while IFS= read -r path; do
+            case "$path" in
+              README.md|docs/index.html|docs/styles.css|docs/script.js|docs/logo.png|docs/favicon.png|.github/workflows/publish-release.yml|scripts/verify-release.mjs|tests/verify-release.test.mjs) ;;
+              *) echo "::error::Unexpected file in public release source archive: $path"; exit 1 ;;
+            esac
+          done < <(git ls-tree -r --name-only "$TAG")
+
+          mkdir -p verification
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" > verification/release.json
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir verification \
+            --pattern 'SHA256SUMS.txt' --pattern 'latest.yml' --pattern 'latest-mac.yml'
+          node scripts/verify-release.mjs "$TAG" verification/release.json \
+            verification/SHA256SUMS.txt verification/latest.yml verification/latest-mac.yml
+
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest
