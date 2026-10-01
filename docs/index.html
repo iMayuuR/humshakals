@@ -47,14 +47,14 @@
     <section class="hero section-shell" id="top">
       <div class="container hero__grid">
         <div class="hero__content">
-          <div class="eyebrow"><span class="eyebrow__pulse" aria-hidden="true"></span> The responsive QA workspace <span class="eyebrow__tail">/ product preview</span></div>
+          <div class="eyebrow"><span class="eyebrow__pulse" aria-hidden="true"></span> The responsive QA workspace <span class="eyebrow__tail">/ unsigned manual build</span></div>
           <h1>One canvas.<br><span class="text-gradient">Every breakpoint.</span><br>Better answers.</h1>
           <p class="hero__lead">See the same site across device-sized browser screens. Inspect what changed, run trusted Playwright specs on visible viewports, and ask an AI agent to investigate the page—all without losing your place.</p>
           <div class="hero__actions">
-            <a class="button button--primary" href="#app-preview">See the app preview <span aria-hidden="true">↓</span></a>
-            <a class="button button--outline" href="#capabilities">Explore capabilities <span aria-hidden="true">↓</span></a>
+            <a class="button button--primary" href="https://github.com/iMayuuR/humshakals/releases/tag/v3.8.9">Get v3.8.9 <span aria-hidden="true">↗</span></a>
+            <a class="button button--outline" href="#app-preview">See the app preview <span aria-hidden="true">↓</span></a>
           </div>
-          <p class="hero__footnote"><span class="dot dot--amber" aria-hidden="true"></span> Product showcase. Public installers are not available yet.</p>
+          <p class="hero__footnote"><span class="dot dot--amber" aria-hidden="true"></span> Manual install only. This build is unsigned and unnotarized; your OS may block it.</p>
         </div>
 
         <div class="product-demo" id="app-preview" aria-label="Illustrated Humshakals workspace preview">
@@ -173,7 +173,7 @@
         <details><summary>Can Humshakals run real iOS or Android?<span class="faq-toggle" aria-hidden="true"></span></summary><p>Its built-in phone frames are browser-engine simulations, not iOS or Android OS sessions. Supported physical Android devices can be connected for real Chrome automation. iOS-specific issues still need an iPhone or a separately configured native device runner.</p></details>
         <details><summary>Will my existing Playwright tests open a separate browser?<span class="faq-toggle" aria-hidden="true"></span></summary><p>The Automation Lab runs selected layout targets against visible Humshakals webviews, with their effective viewports. A trusted imported repository can bring its own dependencies and configuration; review them before execution. Supported connected Android devices run in real Chrome.</p></details>
         <details><summary>Does the Browser Agent automatically get every permission?<span class="faq-toggle" aria-hidden="true"></span></summary><p>No. Choose its target screens and provider. Browser actions are bounded, and external MCP tools require separate connection and per-call approval. Never connect an untrusted server or send private staging content to a provider without checking your policy.</p></details>
-        <details><summary>Can I download a production-ready installer today?<span class="faq-toggle" aria-hidden="true"></span></summary><p>Not yet. Public installers will follow signing, dependency scanning and packaged-platform QA. This page showcases the app while those release checks are completed.</p></details>
+        <details><summary>Can I download a production-ready installer today?<span class="faq-toggle" aria-hidden="true"></span></summary><p><a href="https://github.com/iMayuuR/humshakals/releases/tag/v3.8.9">v3.8.9</a> is available for manual download, but it is <strong>not</strong> a signed or production-certified installer. Windows SmartScreen and macOS Gatekeeper may warn or block it, and packaged Windows/macOS QA is incomplete. Verify the release checksums; do not disable OS protections globally. Signed installers remain a future release goal.</p></details>
       </div></div>
     </section>
 

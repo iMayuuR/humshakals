@@ -33,7 +33,7 @@ function fixture() {
   }
 }
 
-test('accepts an exact signed-bundle shape and matching updater metadata', () => {
+test('accepts an exact release-asset set and matching updater metadata', () => {
   assert.equal(verifyRelease(fixture()).assetCount, 9)
 })
 
