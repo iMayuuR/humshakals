@@ -66,6 +66,13 @@ export function verifyRelease({ tag, release, manifest, winMetadata, macMetadata
     assert(match && match[1].trim().replace(/^['"]|['"]$/g, '') === version,
       `Wrong updater version in ${name}`)
     assert(text.includes(requiredFile), `Expected installer is absent from ${name}`)
+    const [major, minor, patch] = version.split('.').map(Number)
+    const requiresMac13 = major > 3 || (major === 3 && (minor > 9 || (minor === 9 && patch >= 10)))
+    if (name === 'latest-mac.yml' && requiresMac13) {
+      const minima = [...text.matchAll(/^minimumSystemVersion:[ \t]*([^\r\n]+)$/gm)]
+      assert(minima.length === 1 && minima[0][1].trim().replace(/^['"]|['"]$/g, '') === '22.0.0',
+        'Mac updates must declare minimum Darwin 22.0.0 (macOS 13) exactly once')
+    }
   }
 
   return { tag, assetCount: assets.size }

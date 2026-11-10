@@ -5,7 +5,7 @@ import { verifyRelease } from '../scripts/verify-release.mjs'
 
 const hash = (data) => createHash('sha256').update(data).digest('hex')
 
-function fixture() {
+function fixture(minimumDarwin = '22.0.0') {
   const tag = 'v9.0.0'
   const files = new Map([
     ['Humshakals-Setup-9.0.0.exe', 'windows binary'],
@@ -15,7 +15,7 @@ function fixture() {
     ['Humshakals-9.0.0-universal-mac.zip', 'mac zip'],
     ['Humshakals-9.0.0-universal-mac.zip.blockmap', 'mac zip blockmap'],
     ['latest.yml', 'version: 9.0.0\npath: Humshakals-Setup-9.0.0.exe\n'],
-    ['latest-mac.yml', 'version: 9.0.0\npath: Humshakals-9.0.0-universal-mac.zip\n']
+    ['latest-mac.yml', 'version: 9.0.0\npath: Humshakals-9.0.0-universal-mac.zip\n' + (minimumDarwin === null ? '' : `minimumSystemVersion: ${minimumDarwin}\n`)]
   ])
   const manifest = [...files].map(([name, data]) => `${hash(data)}  ${name}`).join('\n') + '\n'
   files.set('SHA256SUMS.txt', manifest)
@@ -35,6 +35,12 @@ function fixture() {
 
 test('accepts an exact release-asset set and matching updater metadata', () => {
   assert.equal(verifyRelease(fixture()).assetCount, 9)
+})
+
+test('rejects missing, duplicate or marketing-OS eligibility fields before publication', () => {
+  for (const minimum of [null, '13.0.0', '21.6.0', 'invalid', '22.0.0\nminimumSystemVersion: 0.0.0']) {
+    assert.throws(() => verifyRelease(fixture(minimum)), /minimum Darwin/)
+  }
 })
 
 test('rejects a published release or wrong tag', () => {
