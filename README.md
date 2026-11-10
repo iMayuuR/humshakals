@@ -6,6 +6,8 @@ This public repository owns the static landing page in `docs/`, the [release-pub
 
 **v3.9.10 requires macOS 13 or later.** Its newer Electron runtime is protected by update eligibility metadata so macOS 12 clients do not attempt the incompatible update.
 
+Imported Playwright projects now require matching stable Playwright **1.65.0+ in the 1.x line** and a clean dependency audit during preparation. If preparation stops, update and commit that project's lockfile before retrying; Humshakals does not rewrite imported dependencies.
+
 Humshakals distributes **unsigned Windows/macOS installers** as its production format. Download from the official [public release](https://github.com/iMayuuR/humshakals/releases/latest); its `SHA256SUMS.txt` supports an optional integrity check. Windows SmartScreen or macOS Gatekeeper may still prompt or block installation.
 
 **Starting with v3.9.8, updates replace the installed app.** A verified download starts a visible 30-second restart countdown. Choose **Later** to finish your work, or **Restart & update** to install immediately. Humshakals closes, updates its existing installation and reopens, retaining saved layouts/settings. Windows preserves the registered installation folder and scope; macOS restores the previous bundle if the updated app cannot start.
