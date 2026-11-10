@@ -194,7 +194,16 @@
               <li><strong>Open the installer.</strong><p>Open the disk image and double-click <strong>Install Humshakals</strong>. Choose <strong>Update existing app</strong> for an older installation, or <strong>Move to Applications</strong> for a first install. The installer handles placement; keep it in the disk image.</p></li>
               <li><strong>Approve this app only.</strong><p>For an unidentified-developer or “Apple cannot check” warning, go to <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>, then confirm <strong>Open</strong>. The button appears after the first launch attempt.</p></li>
             </ol>
-            <div class="install-advanced"><strong>Still blocked?</strong><p>Use the app-specific Open Anyway option only after confirming the official download. If macOS reports malware, damage, corruption, or a device-management block, stop and contact your administrator. Keep quarantine metadata and system security protections in place.</p></div>
+            <div class="install-advanced">
+              <strong>Still blocked after Open Anyway?</strong>
+              <p>For the official app already in Applications, this optional Terminal command clears all extended attributes recursively, including quarantine. It is not a safety verification.</p>
+              <div class="install-command-row">
+                <button class="install-command" type="button" data-copy-command="mac-install-command" aria-label="Copy macOS Terminal command" aria-describedby="mac-copy-status"><code id="mac-install-command">xattr -cr /Applications/Humshakals.app</code></button>
+                <button class="install-copy" type="button" data-copy-command="mac-install-command" aria-describedby="mac-copy-status"><span data-copy-label>Copy</span></button>
+              </div>
+              <p class="install-copy-status" id="mac-copy-status" data-copy-status role="status" aria-live="polite">Click the command or Copy to copy it.</p>
+              <p>Do not use this for malware, damage, corruption or a device-management block. Follow your administrator’s policy and keep system-wide protection enabled.</p>
+            </div>
             <a class="button button--outline install-card__download" data-release-asset="mac" href="https://github.com/iMayuuR/humshakals/releases/latest"><span data-download-label>macOS DMG on GitHub</span> <span aria-hidden="true">↗</span></a>
           </article>
         </div>

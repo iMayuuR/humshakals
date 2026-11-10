@@ -218,6 +218,41 @@ function initHumshakalsLanding() {
   if (!siteHeader || siteHeader.dataset.interactionsReady === 'true') return;
   siteHeader.dataset.interactionsReady = 'true';
 
+  document.querySelectorAll('.install-advanced').forEach(section => {
+    const label = section.querySelector('[data-copy-label]');
+    const status = section.querySelector('[data-copy-status]');
+    let copying = false;
+    let reset;
+    section.querySelectorAll('[data-copy-command]').forEach(button => {
+      button.addEventListener('click', async () => {
+        const command = document.getElementById(button.dataset.copyCommand);
+        if (!command || copying) return;
+        copying = true;
+        clearTimeout(reset);
+        // Keep a selectable fallback for browsers that cannot write the clipboard.
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(command);
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+        try {
+          if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+          await navigator.clipboard.writeText(command.textContent.trim());
+          if (label) label.textContent = 'Copied!';
+          if (status) status.textContent = 'Command copied. Paste it in Terminal.';
+        } catch {
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+          if (label) label.textContent = 'Selected';
+          if (status) status.textContent = 'Command selected. Press Cmd+C or Ctrl+C to copy.';
+        } finally {
+          copying = false;
+          reset = setTimeout(() => { if (label) label.textContent = 'Copy'; }, 2500);
+        }
+      });
+    });
+  });
+
   const menuButton = document.querySelector('.menu-toggle');
   const primaryNav = document.getElementById('primary-nav');
 
